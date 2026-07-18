@@ -111,13 +111,17 @@
             </label>
 
             <div class="skill-import-actions">
-              <button id="addSkillsBtn" class="secondary-btn">+ Adicionar várias Skills</button>
+              <button id="addSkillsBtn" class="secondary-btn">+ Registrar Skills do GitHub</button>
+              <button id="removeAllClassSkillsBtn" class="danger-btn">Remover todas as Skills</button>
               <input id="skillFilesInput" type="file" accept="image/*" multiple class="hidden" />
             </div>
           </div>
 
           <div id="skillLibrary" class="skill-library"></div>
-          <p class="library-tip">Dica: dê dois cliques em uma skill colocada para removê-la do slot.</p>
+          <p class="library-tip">
+            As imagens das skills devem estar em <strong>assets/skills/NOME-DA-CLASSE/</strong>.
+            O navegador salva apenas o caminho da imagem, não o arquivo.
+          </p>
         </section>
       </section>
     </main>
@@ -130,7 +134,7 @@
       <div id="bossImageUploadArea" class="modal-field hidden">
         <span>Ou escolher imagem do computador</span>
         <input id="bossImageFileInput" type="file" accept="image/*" />
-        <small class="field-help">A imagem será salva junto com o boss no navegador.</small>
+        <small class="field-help">A imagem do boss continua sendo salva no navegador.</small>
       </div>
       <div id="bossImagePreviewWrap" class="boss-preview hidden">
         <img id="bossImagePreview" alt="Prévia da imagem do boss" />
@@ -177,5 +181,6 @@
   </div>
 
   <script src="script.js"></script>
+  <script src="github-skills.js"></script>
 </body>
 </html>
