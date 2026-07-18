@@ -72,6 +72,13 @@ function saveState() {
   state.selectedBossId = selectedBossId;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
+    // Sincroniza com o Firebase somente quando o módulo estiver pronto
+    // e este dispositivo tiver permissão de edição.
+    if (window.FantamonCloud?.queueSync) {
+      window.FantamonCloud.queueSync(state);
+    }
+
     return true;
   } catch (error) {
     console.error("Erro ao salvar dados:", error);
@@ -391,7 +398,12 @@ function render() {
   el("emptyState").classList.toggle("hidden", !!boss);
   el("builderView").classList.toggle("hidden", !boss);
 
-  if (!boss) return;
+  if (!boss) {
+    if (window.FantamonCloud?.applyPermissions) {
+      window.FantamonCloud.applyPermissions();
+    }
+    return;
+  }
 
   if (!boss.strategies.some(s => s.id === selectedStrategyId)) {
     selectedStrategyId = (boss.strategies.find(s => s.principal) || boss.strategies[0])?.id || null;
@@ -419,6 +431,10 @@ function render() {
   renderStrategies(boss);
   renderSlots();
   renderSkillLibrary();
+
+  if (window.FantamonCloud?.applyPermissions) {
+    window.FantamonCloud.applyPermissions();
+  }
 }
 
 function renderBossList() {
@@ -1135,5 +1151,44 @@ document.addEventListener("keydown", e => {
   if (e.key === "Escape") hideModal();
   if (e.key === "Enter" && !el("modalBackdrop").classList.contains("hidden")) modalConfirmAction?.();
 });
+
+
+// Interface usada pelo módulo Firebase para atualizar os dados compartilhados
+// sem remover os eventos e funções do aplicativo.
+window.FantamonApp = {
+  getState: () => state,
+
+  replaceSharedData: ({ bosses, classes, customSkills }) => {
+    if (Array.isArray(bosses)) {
+      state.bosses = bosses;
+    }
+
+    if (Array.isArray(classes) && classes.length > 0) {
+      state.classes = classes;
+    }
+
+    if (customSkills && typeof customSkills === "object") {
+      state.customSkills = customSkills;
+    }
+
+    if (!state.bosses.some(b => b.id === selectedBossId)) {
+      selectedBossId = state.bosses[0]?.id || null;
+      selectedStrategyId = null;
+    }
+
+    // Cache local sem disparar uma gravação de volta ao Firebase.
+    try {
+      state.selectedBossId = selectedBossId;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.warn("Não foi possível atualizar o cache local:", error);
+    }
+
+    render();
+  },
+
+  render
+};
+
 
 render();

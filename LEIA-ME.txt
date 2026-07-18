@@ -1,28 +1,18 @@
-FANTAMON BOSS BUILDER V7.1 — CORREÇÃO DO PAINEL FIREBASE
+FANTAMON BOSS BUILDER V7.2 — CORREÇÃO
 
-CORREÇÃO
---------
-O index.html da v7 anterior não incluiu corretamente o painel com:
-- status Firebase
-- Ativar convite
-- Gerar convite único
-- Copiar ID deste dispositivo
+Corrigido:
+- Botão "Novo Boss" com integração correta ao Firebase.
+- Sincronização do estado local com o Firebase restaurada no script atual.
+- Interface reaplica corretamente as permissões de Administrador/Editor.
+- Pequeno espaço de 6px entre os botões do painel lateral de colaboração.
 
-Nesta versão isso foi corrigido.
-
-NO GITHUB
----------
-Substitua estes arquivos:
+Substitua no GitHub:
 - index.html
 - style.css
 - script.js
 - github-skills.js
 - firebase-sync.js
 
-O arquivo firestore.rules.txt é apenas para copiar as regras no console Firebase.
+Depois aguarde o GitHub Pages atualizar e pressione Ctrl + F5.
 
-DEPOIS
-------
-1. Aguarde o GitHub Pages atualizar.
-2. Abra o site e use Ctrl + F5.
-3. O botão "Copiar ID deste dispositivo" deve aparecer na barra lateral.
+Também restaurado o modal de recorte da imagem do Boss, que estava ausente no index atual e fazia o JavaScript parar antes de ativar os botões.

@@ -85,6 +85,11 @@ async function refreshRole() {
   const userSnap = await getDoc(doc(db, "users", currentUser.uid));
   role = userSnap.exists() ? (userSnap.data().role || "viewer") : "viewer";
   updateStatus();
+
+  // Reaplica a interface depois que a permissão é conhecida.
+  if (window.FantamonApp?.render) {
+    window.FantamonApp.render();
+  }
 }
 
 async function syncState(state) {

@@ -949,3 +949,15 @@ body {
   width: 100%;
 }
 
+
+
+/* v2.5 — pequeno espaçamento entre os controles de colaboração */
+.collab-panel {
+  display: grid;
+  gap: 6px;
+}
+
+.collab-panel .compact-btn {
+  width: 100%;
+  margin: 0;
+}
