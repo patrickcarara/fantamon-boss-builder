@@ -1,18 +1,16 @@
-FANTAMON BOSS BUILDER V7.2 — CORREÇÃO
+FANTAMON — SELETOR VISUAL DE SKILLS NO CELULAR
 
-Corrigido:
-- Botão "Novo Boss" com integração correta ao Firebase.
-- Sincronização do estado local com o Firebase restaurada no script atual.
-- Interface reaplica corretamente as permissões de Administrador/Editor.
-- Pequeno espaço de 6px entre os botões do painel lateral de colaboração.
+Alteração:
+- Computador continua exatamente com arrastar e soltar.
+- No celular, toque em qualquer um dos 4 slots de skill.
+- Abre uma janela mostrando SOMENTE os ícones das skills da classe selecionada para aquele personagem.
+- Toque no ícone para colocar a skill.
+- Se o slot já tiver uma skill, a janela também mostra "Remover Skill".
+- Visitantes continuam sem poder alterar.
 
 Substitua no GitHub:
 - index.html
-- style.css
 - script.js
-- github-skills.js
-- firebase-sync.js
+- style.css
 
-Depois aguarde o GitHub Pages atualizar e pressione Ctrl + F5.
-
-Também restaurado o modal de recorte da imagem do Boss, que estava ausente no index atual e fazia o JavaScript parar antes de ativar os botões.
+Depois aguarde o GitHub Pages atualizar e recarregue no celular.

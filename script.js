@@ -21,6 +21,7 @@ let draggedSkill = null;
 let modalConfirmAction = null;
 let pendingBossImage = "";
 let selectedManagedClassId = null;
+let mobileSkillPickerTarget = null;
 
 const el = id => document.getElementById(id);
 
@@ -495,6 +496,74 @@ function renderStrategies(boss) {
   }
 }
 
+
+function isMobileSkillPickerMode() {
+  return window.matchMedia("(max-width: 760px)").matches;
+}
+
+function getSkillsForClass(classId) {
+  return [
+    ...(defaultSkills[classId] || []),
+    ...(state.customSkills?.[classId] || [])
+  ];
+}
+
+function closeMobileSkillPicker() {
+  mobileSkillPickerTarget = null;
+  el("mobileSkillPickerBackdrop").classList.add("hidden");
+}
+
+function openMobileSkillPicker(slotId, skillIndex) {
+  if (!isMobileSkillPickerMode()) return;
+  if (document.body.classList.contains("read-only")) return;
+
+  const strategy = getSelectedStrategy();
+  const slot = strategy?.slots.find(s => s.id === slotId);
+  if (!slot) return;
+
+  const classId = slot.classId || getClasses().find(c => c.name === slot.className)?.id;
+  const skills = getSkillsForClass(classId);
+
+  mobileSkillPickerTarget = { slotId, skillIndex };
+  el("mobileSkillPickerClass").textContent = `Classe: ${classNameById(classId)}`;
+
+  if (skills.length === 0) {
+    el("mobileSkillPickerGrid").innerHTML = `
+      <div class="empty-library-message">
+        Nenhuma skill cadastrada para esta classe.
+      </div>
+    `;
+  } else {
+    el("mobileSkillPickerGrid").innerHTML = skills.map(skill => `
+      <button class="mobile-skill-picker-item"
+              data-mobile-skill-id="${escapeHtml(skill.id)}"
+              title="${escapeHtml(skill.name)}">
+        <img src="${escapeHtml(skill.image)}" alt="${escapeHtml(skill.name)}" />
+      </button>
+    `).join("");
+
+    document.querySelectorAll("[data-mobile-skill-id]").forEach(button => {
+      button.addEventListener("click", () => {
+        const selectedSkill = skills.find(s => s.id === button.dataset.mobileSkillId);
+        if (!selectedSkill || !mobileSkillPickerTarget) return;
+
+        const currentStrategy = getSelectedStrategy();
+        const currentSlot = currentStrategy?.slots.find(s => s.id === mobileSkillPickerTarget.slotId);
+        if (!currentSlot) return;
+
+        currentSlot.skills[mobileSkillPickerTarget.skillIndex] = { ...selectedSkill };
+        touchStrategy(currentStrategy);
+        closeMobileSkillPicker();
+        renderSlots();
+      });
+    });
+  }
+
+  const hasSkill = !!slot.skills?.[skillIndex];
+  el("mobileSkillPickerRemoveBtn").classList.toggle("hidden", !hasSkill);
+  el("mobileSkillPickerBackdrop").classList.remove("hidden");
+}
+
 function renderSlots() {
   const strategy = getSelectedStrategy();
   const container = el("slotsContainer");
@@ -579,6 +648,18 @@ function renderSlots() {
       slot.skills[skillIndex] = { ...draggedSkill };
       touchStrategy(strategy);
       renderSlots();
+    });
+
+    // No celular, tocar no slot abre um seletor visual com os ícones
+    // apenas da classe escolhida para aquele personagem.
+    zone.addEventListener("click", event => {
+      if (!isMobileSkillPickerMode()) return;
+      event.preventDefault();
+      event.stopPropagation();
+      openMobileSkillPicker(
+        zone.dataset.dropSlot,
+        Number(zone.dataset.skillIndex)
+      );
     });
   });
 
@@ -1150,6 +1231,29 @@ el("modalBackdrop").addEventListener("click", e => {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape") hideModal();
   if (e.key === "Enter" && !el("modalBackdrop").classList.contains("hidden")) modalConfirmAction?.();
+});
+
+
+
+el("mobileSkillPickerCloseBtn").addEventListener("click", closeMobileSkillPicker);
+
+el("mobileSkillPickerRemoveBtn").addEventListener("click", () => {
+  if (!mobileSkillPickerTarget) return;
+
+  const strategy = getSelectedStrategy();
+  const slot = strategy?.slots.find(s => s.id === mobileSkillPickerTarget.slotId);
+  if (!slot) return;
+
+  slot.skills[mobileSkillPickerTarget.skillIndex] = null;
+  touchStrategy(strategy);
+  closeMobileSkillPicker();
+  renderSlots();
+});
+
+el("mobileSkillPickerBackdrop").addEventListener("click", event => {
+  if (event.target === el("mobileSkillPickerBackdrop")) {
+    closeMobileSkillPicker();
+  }
 });
 
 
