@@ -773,6 +773,73 @@ function deleteStrategy() {
 }
 
 
+// Editor de recorte da imagem do Boss (proporção 400 x 560)
+let cropImage = null;
+let cropScale = 1;
+let cropMinScale = 1;
+let cropOffsetX = 0;
+let cropOffsetY = 0;
+let cropDragging = false;
+let cropLastX = 0;
+let cropLastY = 0;
+
+function drawBossCrop() {
+  if (!cropImage) return;
+
+  const canvas = el("cropCanvas");
+  const ctx = canvas.getContext("2d");
+  const cw = canvas.width;
+  const ch = canvas.height;
+
+  ctx.clearRect(0, 0, cw, ch);
+  ctx.fillStyle = "#090d12";
+  ctx.fillRect(0, 0, cw, ch);
+
+  const width = cropImage.naturalWidth * cropScale;
+  const height = cropImage.naturalHeight * cropScale;
+
+  // Limita o movimento para nunca deixar área vazia dentro do recorte.
+  const minX = cw - width;
+  const minY = ch - height;
+  cropOffsetX = Math.min(0, Math.max(minX, cropOffsetX));
+  cropOffsetY = Math.min(0, Math.max(minY, cropOffsetY));
+
+  ctx.drawImage(cropImage, cropOffsetX, cropOffsetY, width, height);
+}
+
+function openBossCrop(dataUrl) {
+  const img = new Image();
+
+  img.onload = () => {
+    cropImage = img;
+
+    const canvas = el("cropCanvas");
+    const coverScale = Math.max(
+      canvas.width / img.naturalWidth,
+      canvas.height / img.naturalHeight
+    );
+
+    cropMinScale = coverScale;
+    cropScale = coverScale;
+
+    const width = img.naturalWidth * cropScale;
+    const height = img.naturalHeight * cropScale;
+    cropOffsetX = (canvas.width - width) / 2;
+    cropOffsetY = (canvas.height - height) / 2;
+
+    const zoom = el("cropZoom");
+    zoom.min = "1";
+    zoom.max = "3";
+    zoom.step = "0.01";
+    zoom.value = "1";
+
+    drawBossCrop();
+    el("cropModalBackdrop").classList.remove("hidden");
+  };
+
+  img.src = dataUrl;
+}
+
 el("bossImageFileInput").addEventListener("change", () => {
   const file = el("bossImageFileInput").files?.[0];
   if (!file) return;
@@ -783,12 +850,89 @@ el("bossImageFileInput").addEventListener("change", () => {
   }
 
   const reader = new FileReader();
-  reader.onload = () => {
-    pendingBossImage = String(reader.result || "");
-    el("bossImagePreview").src = pendingBossImage;
-    el("bossImagePreviewWrap").classList.remove("hidden");
-  };
+  reader.onload = () => openBossCrop(String(reader.result || ""));
   reader.readAsDataURL(file);
+});
+
+el("cropZoom").addEventListener("input", () => {
+  if (!cropImage) return;
+
+  const canvas = el("cropCanvas");
+  const oldWidth = cropImage.naturalWidth * cropScale;
+  const oldHeight = cropImage.naturalHeight * cropScale;
+
+  const centerImageX = (canvas.width / 2 - cropOffsetX) / oldWidth;
+  const centerImageY = (canvas.height / 2 - cropOffsetY) / oldHeight;
+
+  cropScale = cropMinScale * Number(el("cropZoom").value);
+
+  const newWidth = cropImage.naturalWidth * cropScale;
+  const newHeight = cropImage.naturalHeight * cropScale;
+
+  cropOffsetX = canvas.width / 2 - centerImageX * newWidth;
+  cropOffsetY = canvas.height / 2 - centerImageY * newHeight;
+
+  drawBossCrop();
+});
+
+const cropCanvas = el("cropCanvas");
+
+cropCanvas.addEventListener("pointerdown", e => {
+  if (!cropImage) return;
+  cropDragging = true;
+  cropLastX = e.clientX;
+  cropLastY = e.clientY;
+  cropCanvas.setPointerCapture(e.pointerId);
+});
+
+cropCanvas.addEventListener("pointermove", e => {
+  if (!cropDragging || !cropImage) return;
+
+  const rect = cropCanvas.getBoundingClientRect();
+  const scaleX = cropCanvas.width / rect.width;
+  const scaleY = cropCanvas.height / rect.height;
+
+  cropOffsetX += (e.clientX - cropLastX) * scaleX;
+  cropOffsetY += (e.clientY - cropLastY) * scaleY;
+
+  cropLastX = e.clientX;
+  cropLastY = e.clientY;
+
+  drawBossCrop();
+});
+
+function stopCropDrag() {
+  cropDragging = false;
+}
+
+cropCanvas.addEventListener("pointerup", stopCropDrag);
+cropCanvas.addEventListener("pointercancel", stopCropDrag);
+
+el("cropCancelBtn").addEventListener("click", () => {
+  el("cropModalBackdrop").classList.add("hidden");
+  el("bossImageFileInput").value = "";
+  cropImage = null;
+});
+
+el("cropConfirmBtn").addEventListener("click", () => {
+  if (!cropImage) return;
+
+  // Salva o resultado final já recortado em 400 x 560.
+  // JPEG reduz bastante o uso do localStorage em comparação com um print inteiro.
+  pendingBossImage = el("cropCanvas").toDataURL("image/jpeg", 0.86);
+
+  el("bossImagePreview").src = pendingBossImage;
+  el("bossImagePreviewWrap").classList.remove("hidden");
+  el("cropModalBackdrop").classList.add("hidden");
+  cropImage = null;
+});
+
+el("cropModalBackdrop").addEventListener("click", e => {
+  if (e.target === el("cropModalBackdrop")) {
+    el("cropModalBackdrop").classList.add("hidden");
+    el("bossImageFileInput").value = "";
+    cropImage = null;
+  }
 });
 
 function exportBackup() {
