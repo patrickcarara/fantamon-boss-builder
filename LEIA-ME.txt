@@ -1,55 +1,28 @@
-FANTAMON BOSS BUILDER V7 — FIREBASE + CONVITES ÚNICOS
+FANTAMON BOSS BUILDER V7.1 — CORREÇÃO DO PAINEL FIREBASE
 
-ARQUIVOS PARA SUBSTITUIR NO GITHUB
-----------------------------------
-index.html
-style.css
-script.js
-github-skills.js
-
-NOVO ARQUIVO
-------------
-firebase-sync.js
-
-NÃO É MAIS NECESSÁRIO
----------------------
-data/bosses.json
-Botão "Gerar Bosses Públicos"
-
-PRIMEIRO ACESSO / CRIAR ADMIN
------------------------------
-1. Publique os arquivos no GitHub.
-2. Abra o site.
-3. Clique em "Copiar ID deste dispositivo".
-4. No Firestore, crie manualmente:
-   coleção: users
-   documento: COLE_AQUI_O_UID
-   campo: role
-   tipo: string
-   valor: admin
-5. Atualize o site com Ctrl+F5.
-6. O status deve mudar para "Administrador".
-
-REGRAS
-------
-Substitua as regras atuais do Firestore pelo conteúdo de firestore.rules.txt
-e clique em Publicar.
-
-CONVITES
+CORREÇÃO
 --------
-Como admin, clique em "Gerar convite único".
-O link gerado contém ?convite=CODIGO.
-Envie para uma pessoa.
-Ao abrir o link, aquele dispositivo vira editor e o convite é consumido.
-O mesmo convite não pode ser usado novamente.
+O index.html da v7 anterior não incluiu corretamente o painel com:
+- status Firebase
+- Ativar convite
+- Gerar convite único
+- Copiar ID deste dispositivo
 
-VISITANTES
-----------
-Qualquer visitante pode visualizar Bosses e estratégias.
-Somente admin/editor pode alterar.
+Nesta versão isso foi corrigido.
 
-OBSERVAÇÃO
-----------
-A autenticação é anônima: não existe tela de login ou senha.
-Se um editor limpar os dados do navegador ou trocar de dispositivo,
-precisará receber um novo convite.
+NO GITHUB
+---------
+Substitua estes arquivos:
+- index.html
+- style.css
+- script.js
+- github-skills.js
+- firebase-sync.js
+
+O arquivo firestore.rules.txt é apenas para copiar as regras no console Firebase.
+
+DEPOIS
+------
+1. Aguarde o GitHub Pages atualizar.
+2. Abra o site e use Ctrl + F5.
+3. O botão "Copiar ID deste dispositivo" deve aparecer na barra lateral.

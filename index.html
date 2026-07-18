@@ -25,6 +25,13 @@
         <input id="importBackupInput" type="file" accept=".json,application/json" class="hidden" />
       </div>
 
+      <div class="collab-panel">
+        <div id="firebaseStatus" class="firebase-status">Conectando ao banco...</div>
+        <button id="redeemInviteBtn" class="secondary-btn compact-btn hidden">Ativar convite</button>
+        <button id="generateInviteBtn" class="secondary-btn compact-btn hidden">Gerar convite único</button>
+        <button id="copyDeviceIdBtn" class="secondary-btn compact-btn">Copiar ID deste dispositivo</button>
+      </div>
+
       <label class="search-box">
         <span>🔎</span>
         <input id="bossSearch" type="search" placeholder="Pesquisar boss..." />
@@ -146,28 +153,6 @@
     </div>
   </div>
 
-
-  <div id="cropModalBackdrop" class="modal-backdrop hidden">
-    <div class="modal crop-modal">
-      <h3>Recortar imagem do Boss</h3>
-      <p class="field-help">Arraste a imagem para posicionar o Boss dentro do quadro. Use o controle para aumentar ou diminuir o zoom.</p>
-
-      <div id="cropViewport" class="crop-viewport">
-        <canvas id="cropCanvas" width="400" height="560"></canvas>
-      </div>
-
-      <label class="crop-zoom-field">
-        <span>Zoom</span>
-        <input id="cropZoom" type="range" min="1" max="3" step="0.01" value="1" />
-      </label>
-
-      <div class="modal-actions">
-        <button id="cropCancelBtn" class="secondary-btn">Cancelar</button>
-        <button id="cropConfirmBtn" class="primary-btn">Usar recorte</button>
-      </div>
-    </div>
-  </div>
-
   <div id="classModalBackdrop" class="modal-backdrop hidden">
     <div class="modal class-modal">
       <h3>Gerenciar Classes</h3>
@@ -204,5 +189,6 @@
 
   <script src="script.js"></script>
   <script src="github-skills.js"></script>
+  <script type="module" src="firebase-sync.js"></script>
 </body>
 </html>
