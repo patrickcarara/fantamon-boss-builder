@@ -1,12 +1,30 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
-<defs>
-  <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0%" stop-color="#24174d"/>
-    <stop offset="100%" stop-color="#5f42d7"/>
-  </linearGradient>
-</defs>
-<rect width="128" height="128" rx="20" fill="url(#g)"/>
-<circle cx="64" cy="49" r="31" fill="#ffffff" opacity=".08"/>
-<text x="64" y="62" text-anchor="middle" font-size="42">🌀</text>
-<text x="64" y="92" text-anchor="middle" font-family="Arial" font-size="10" fill="#dfe7ff">Chaotic</text><text x="64" y="106" text-anchor="middle" font-family="Arial" font-size="10" fill="#dfe7ff">Wind</text>
-</svg>
+{
+  "class": "Mage",
+  "skills": [
+    {
+      "id": "astronomical-observation",
+      "name": "Astronomical Observation",
+      "image": "assets/skills/mage/astronomical-observation.svg"
+    },
+    {
+      "id": "chaos-stream",
+      "name": "Chaos Stream",
+      "image": "assets/skills/mage/chaos-stream.svg"
+    },
+    {
+      "id": "chaotic-wind",
+      "name": "Chaotic Wind",
+      "image": "assets/skills/mage/chaotic-wind.svg"
+    },
+    {
+      "id": "companion-star-summoning",
+      "name": "Companion Star Summoning",
+      "image": "assets/skills/mage/companion-star-summoning.svg"
+    },
+    {
+      "id": "double-star-breaker",
+      "name": "Double Star Breaker",
+      "image": "assets/skills/mage/double-star-breaker.svg"
+    }
+  ]
+}
