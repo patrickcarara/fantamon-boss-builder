@@ -236,9 +236,114 @@ function renameSelectedClass() {
   if (!selected) return alert("Selecione uma classe.");
   if (!name) return alert("Digite o novo nome da classe.");
 
+  const oldId = selected.id;
+
+  // Cria o novo ID a partir do novo nome, ignorando a própria classe atual
+  // na verificação de IDs duplicados.
+  const baseId = String(name || "classe")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "classe";
+
+  let newId = baseId;
+  let n = 2;
+  while (getClasses().some(c => c.id === newId && c.id !== oldId)) {
+    newId = `${baseId}-${n++}`;
+  }
+
+  const classSelect = el("classSelect");
+  const wasSelectedInLibrary = classSelect?.value === oldId;
+
+  // Se o ID mudou, migra skills e referências para a nova pasta.
+  if (newId !== oldId) {
+    if (!state.customSkills) state.customSkills = {};
+
+    const oldSkills = Array.isArray(state.customSkills[oldId])
+      ? state.customSkills[oldId]
+      : [];
+    const existingNewSkills = Array.isArray(state.customSkills[newId])
+      ? state.customSkills[newId]
+      : [];
+
+    const migratedSkills = oldSkills.map(skill => {
+      const updated = { ...skill };
+
+      if (
+        typeof updated.image === "string" &&
+        updated.image.startsWith(`assets/skills/${oldId}/`)
+      ) {
+        updated.image = updated.image.replace(
+          `assets/skills/${oldId}/`,
+          `assets/skills/${newId}/`
+        );
+      }
+
+      return updated;
+    });
+
+    state.customSkills[newId] = [...existingNewSkills, ...migratedSkills];
+    delete state.customSkills[oldId];
+
+    // Migra também skills padrão, caso existam futuramente.
+    if (Array.isArray(defaultSkills[oldId])) {
+      if (!Array.isArray(defaultSkills[newId])) {
+        defaultSkills[newId] = defaultSkills[oldId];
+      }
+      delete defaultSkills[oldId];
+    }
+
+    // Atualiza personagens/slots e skills já usadas nas estratégias.
+    state.bosses.forEach(boss => {
+      boss.strategies.forEach(strategy => {
+        strategy.slots.forEach(slot => {
+          if (slot.classId === oldId) {
+            slot.classId = newId;
+            slot.className = name;
+          } else if (slot.className === selected.name) {
+            slot.className = name;
+          }
+
+          if (Array.isArray(slot.skills)) {
+            slot.skills.forEach(skill => {
+              if (!skill) return;
+
+              if (skill.classId === oldId) skill.classId = newId;
+              if (skill.classKey === oldId) skill.classKey = newId;
+
+              if (
+                typeof skill.image === "string" &&
+                skill.image.startsWith(`assets/skills/${oldId}/`)
+              ) {
+                skill.image = skill.image.replace(
+                  `assets/skills/${oldId}/`,
+                  `assets/skills/${newId}/`
+                );
+              }
+            });
+          }
+        });
+      });
+    });
+
+    selected.id = newId;
+    selectedManagedClassId = newId;
+  }
+
   selected.name = name;
-  saveState();
+
+  if (!saveState()) return;
+
   renderClassManager();
+  renderClassSelect();
+
+  if (wasSelectedInLibrary) {
+    el("classSelect").value = newId;
+  }
+
+  renderSkillLibrary();
+  renderSlots();
 }
 
 function deleteSelectedClass() {

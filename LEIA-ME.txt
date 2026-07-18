@@ -1,0 +1,36 @@
+FANTAMON BOSS BUILDER - V4
+
+CORREÇÃO PRINCIPAL
+------------------
+Renomear uma classe agora altera também o ID interno usado na pasta do GitHub.
+
+Exemplo:
+Priest -> Scholar
+
+Antes:
+ID interno: priest
+Pasta: assets/skills/priest/
+
+Agora:
+ID interno: scholar
+Pasta: assets/skills/scholar/
+
+A correção também:
+- migra as skills personalizadas da chave antiga para a nova;
+- atualiza caminhos de imagem já cadastrados;
+- atualiza slots/personagens que usavam a classe antiga;
+- atualiza skills já colocadas nas estratégias quando o caminho usa a pasta antiga.
+
+ARQUIVOS PARA SUBSTITUIR NO GITHUB
+----------------------------------
+1. script.js
+2. github-skills.js
+
+O index.html está incluído por conveniência. Se você já está usando o index.html
+da versão anterior e ele contém o botão "Remover todas as Skills", não é obrigatório
+substituí-lo novamente.
+
+IMPORTANTE
+----------
+O código atualiza o caminho usado pelo site, mas não renomeia pastas fisicamente
+no GitHub. Como você já criou assets/skills/scholar/, coloque as imagens lá.
