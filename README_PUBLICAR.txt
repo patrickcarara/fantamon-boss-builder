@@ -24,3 +24,16 @@ Para transferir dados entre computadores ou navegadores, use Exportar Backup e I
 
 ## Atualizações
 Para atualizar o site depois, substitua os arquivos publicados pelos arquivos da nova versão.
+
+
+## Atualização v2.4 Web
+
+- Removidas as 5 skills provisórias que vinham embutidas na versão inicial.
+- A biblioteca agora começa vazia e usa apenas as skills adicionadas pelo usuário.
+- Todas as skills adicionadas pelo usuário continuam com botão `×` para exclusão.
+- Isso evita imagens quebradas quando o site é publicado no GitHub Pages.
+
+
+## Atualização v2.5 Web
+- Removidos fisicamente os 5 arquivos provisórios da pasta `assets/skills/mage`.
+- A pasta `mage` permanece vazia apenas para manter a estrutura do projeto.
