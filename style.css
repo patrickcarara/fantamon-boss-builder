@@ -477,7 +477,31 @@ button { cursor: pointer; }
 
 @media (max-width: 760px) {
   .skill-slots-grid {
-    grid-template-columns: repeat(2, minmax(92px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+
+  .single-skill-slot {
+    min-width: 0;
+    min-height: 72px;
+    padding: 2px;
+  }
+
+  .single-skill-slot .skill-card {
+    width: 100%;
+    max-width: 58px;
+    padding: 3px;
+  }
+
+  .single-skill-slot .skill-card img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+  }
+
+  .empty-skill-label {
+    font-size: 9px;
+    text-align: center;
   }
 }
 
