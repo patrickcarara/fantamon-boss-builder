@@ -70,7 +70,20 @@ function loadState() {
 
 function saveState() {
   state.selectedBossId = selectedBossId;
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return true;
+  } catch (error) {
+    console.error("Erro ao salvar dados:", error);
+
+    if (error?.name === "QuotaExceededError" || error?.code === 22 || error?.code === 1014) {
+      alert("O armazenamento do navegador está cheio. Remova algumas skills personalizadas ou adicione imagens menores. As alterações mais recentes não foram salvas.");
+    } else {
+      alert("Não foi possível salvar os dados no navegador.");
+    }
+
+    return false;
+  }
 }
 
 function getSelectedBoss() {
@@ -760,8 +773,16 @@ async function addMultipleSkills(files) {
   if (!Array.isArray(state.customSkills[classKey])) state.customSkills[classKey] = [];
 
   let added = 0;
+  let skipped = 0;
 
   for (const file of validFiles) {
+    // Evita Base64 gigantes no localStorage. 700 KB por arquivo já pode virar quase 1 MB após conversão.
+    if (file.size > 700 * 1024) {
+      skipped++;
+      console.warn("Skill ignorada por ser muito grande:", file.name);
+      continue;
+    }
+
     try {
       const image = await fileToDataUrl(file);
       const skill = {
@@ -772,17 +793,29 @@ async function addMultipleSkills(files) {
       };
 
       state.customSkills[classKey].push(skill);
+
+      // Salva uma por vez. Se o armazenamento encher, desfaz apenas a última skill.
+      if (!saveState()) {
+        state.customSkills[classKey].pop();
+        skipped += validFiles.length - added;
+        break;
+      }
+
       added++;
     } catch (error) {
+      skipped++;
       console.error("Erro ao importar skill:", file.name, error);
     }
   }
 
-  saveState();
   renderSkillLibrary();
 
   if (added > 0) {
-    alert(`${added} skill${added > 1 ? "s" : ""} adicionada${added > 1 ? "s" : ""} à biblioteca de ${el("classSelect").selectedOptions[0].text}.`);
+    let message = `${added} skill${added > 1 ? "s" : ""} adicionada${added > 1 ? "s" : ""} à biblioteca de ${el("classSelect").selectedOptions[0].text}.`;
+    if (skipped > 0) message += ` ${skipped} arquivo${skipped > 1 ? "s foram" : " foi"} ignorado${skipped > 1 ? "s" : ""}.`;
+    alert(message);
+  } else if (skipped > 0) {
+    alert("Nenhuma skill foi adicionada. O armazenamento pode estar cheio ou as imagens podem ser muito grandes.");
   }
 }
 
