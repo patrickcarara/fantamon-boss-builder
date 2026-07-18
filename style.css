@@ -961,3 +961,34 @@ body {
   width: 100%;
   margin: 0;
 }
+
+
+/* v2.6 — visitantes em modo somente visualização */
+body.read-only #newBossBtn,
+body.read-only #emptyNewBossBtn,
+body.read-only #editBossBtn,
+body.read-only #deleteBossBtn,
+body.read-only #newStrategyBtn,
+body.read-only #renameStrategyBtn,
+body.read-only #duplicateStrategyBtn,
+body.read-only #setPrincipalBtn,
+body.read-only #deleteStrategyBtn,
+body.read-only #manageClassesBtn,
+body.read-only #addSkillsBtn,
+body.read-only #removeAllClassSkillsBtn,
+body.read-only .remove-custom-skill {
+  display: none !important;
+}
+
+/* Visitantes podem ver a estratégia, mas não alterar os personagens/skills/notas. */
+body.read-only .slot-info input,
+body.read-only .slot-info select,
+body.read-only #strategyNotes {
+  pointer-events: none;
+  opacity: .78;
+}
+
+body.read-only .single-skill-slot,
+body.read-only .skill-card {
+  cursor: default;
+}
