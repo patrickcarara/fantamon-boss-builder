@@ -438,7 +438,7 @@ function renderBossList() {
         ${thumb}
         <span>
           <strong>${escapeHtml(b.name)}</strong>
-          <small>⭐ ${escapeHtml(principal)}${b.publicBoss ? " · Público" : ""}</small>
+          <small>⭐ ${escapeHtml(principal)}</small>
         </span>
         <span class="star">${b.favorite ? "★" : ""}</span>
       </button>
@@ -1136,105 +1136,4 @@ document.addEventListener("keydown", e => {
   if (e.key === "Enter" && !el("modalBackdrop").classList.contains("hidden")) modalConfirmAction?.();
 });
 
-
-// ============================================================
-// v2.4 — Bosses públicos carregados do GitHub (data/bosses.json)
-// ============================================================
-
-function clonePublicBoss(publicBoss) {
-  return JSON.parse(JSON.stringify({
-    ...publicBoss,
-    publicBoss: true
-  }));
-}
-
-async function loadPublicBossesFromGitHub() {
-  try {
-    // Evita cache antigo do GitHub Pages após atualizar bosses.json.
-    const response = await fetch(`data/bosses.json?v=${Date.now()}`, {
-      cache: "no-store"
-    });
-
-    if (!response.ok) {
-      console.warn("Arquivo data/bosses.json não encontrado ou indisponível.");
-      return;
-    }
-
-    const payload = await response.json();
-    const publicBosses = Array.isArray(payload)
-      ? payload
-      : Array.isArray(payload?.bosses)
-        ? payload.bosses
-        : [];
-
-    if (!publicBosses.length) return;
-
-    // Remove a cópia pública carregada anteriormente e carrega a versão mais nova
-    // do arquivo hospedado no GitHub. Bosses pessoais continuam intactos.
-    state.bosses = state.bosses.filter(b => !b.publicBoss);
-
-    publicBosses.forEach(publicBoss => {
-      const boss = clonePublicBoss(publicBoss);
-      state.bosses.push(boss);
-    });
-
-    // Não salva bosses públicos no localStorage para evitar duplicação e
-    // manter o GitHub como fonte oficial desses registros.
-    if (!selectedBossId || !state.bosses.some(b => b.id === selectedBossId)) {
-      selectedBossId = state.bosses[0]?.id || null;
-      selectedStrategyId = null;
-    }
-
-    render();
-  } catch (error) {
-    console.warn("Não foi possível carregar os Bosses públicos:", error);
-  }
-}
-
-function makePublicBossesPayload() {
-  // Inclui bosses locais e públicos atualmente visíveis.
-  // Remove a marca interna publicBoss antes de gerar o arquivo oficial.
-  const bosses = state.bosses.map(boss => {
-    const copy = JSON.parse(JSON.stringify(boss));
-    delete copy.publicBoss;
-    return copy;
-  });
-
-  return {
-    app: "Fantamon Boss Builder",
-    version: "public-bosses-1",
-    updatedAt: new Date().toISOString(),
-    bosses
-  };
-}
-
-function exportPublicBosses() {
-  const payload = makePublicBossesPayload();
-  const blob = new Blob([JSON.stringify(payload, null, 2)], {
-    type: "application/json"
-  });
-
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "bosses.json";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-
-  alert(
-    'Arquivo "bosses.json" gerado.\n\n' +
-    'No GitHub, coloque ou substitua este arquivo em:\n' +
-    'data/bosses.json\n\n' +
-    'Depois disso, todos que acessarem o site verão os Bosses publicados.'
-  );
-}
-
-const exportPublicBossesBtn = el("exportPublicBossesBtn");
-if (exportPublicBossesBtn) {
-  exportPublicBossesBtn.addEventListener("click", exportPublicBosses);
-}
-
 render();
-loadPublicBossesFromGitHub();

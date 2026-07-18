@@ -1,0 +1,75 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function userDoc() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && exists(userDoc())
+        && get(userDoc()).data.role == "admin";
+    }
+
+    function isEditor() {
+      return signedIn()
+        && exists(userDoc())
+        && get(userDoc()).data.role in ["admin", "editor"];
+    }
+
+    // Todos podem visualizar os Bosses.
+    // Apenas admin/editor pode criar, alterar ou excluir.
+    match /bosses/{bossId} {
+      allow read: if true;
+      allow create, update, delete: if isEditor();
+    }
+
+    // Configuração compartilhada das classes e skills.
+    match /config/{configId} {
+      allow read: if true;
+      allow create, update, delete: if isEditor();
+    }
+
+    // Cada usuário pode ler somente o próprio cadastro.
+    // Administradores podem gerenciar usuários.
+    // Um visitante pode se tornar editor apenas em uma operação atômica
+    // que também marque um convite válido como usado por esse mesmo UID.
+    match /users/{userId} {
+      allow get: if signedIn() && (request.auth.uid == userId || isAdmin());
+      allow list: if isAdmin();
+
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.role == "editor"
+        && request.resource.data.inviteId is string
+        && getAfter(/databases/$(database)/documents/invites/$(request.resource.data.inviteId)).data.used == true
+        && getAfter(/databases/$(database)/documents/invites/$(request.resource.data.inviteId)).data.usedBy == request.auth.uid;
+
+      allow update, delete: if isAdmin();
+    }
+
+    // Convites:
+    // - somente admin cria/lista/exclui;
+    // - qualquer usuário autenticado pode consultar um convite pelo código exato;
+    // - um convite não usado só pode ser consumido uma vez, pelo próprio UID,
+    //   em uma operação que também crie o usuário editor correspondente.
+    match /invites/{inviteId} {
+      allow get: if signedIn();
+      allow list: if isAdmin();
+      allow create, delete: if isAdmin();
+
+      allow update: if signedIn()
+        && resource.data.used == false
+        && request.resource.data.used == true
+        && request.resource.data.usedBy == request.auth.uid
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "editor"
+        && getAfter(/databases/$(database)/documents/users/$(request.auth.uid)).data.inviteId == inviteId;
+    }
+  }
+}
