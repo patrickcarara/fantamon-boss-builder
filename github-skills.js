@@ -166,3 +166,109 @@
     );
   }
 })();
+
+
+/*
+ * Sincronização de nome da classe com a pasta no GitHub.
+ * Ex.: Priest renomeada para Scholar:
+ *   ID antigo: priest
+ *   Novo ID: scholar
+ *   Pasta: assets/skills/scholar/
+ */
+(function setupClassRenameFolderSync() {
+  function slugifyClassName(name) {
+    return String(name || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  }
+
+  function migrateClassKey(oldKey, newKey) {
+    if (!oldKey || !newKey || oldKey === newKey) return true;
+
+    if (!state.customSkills) state.customSkills = {};
+    const oldSkills = Array.isArray(state.customSkills[oldKey]) ? state.customSkills[oldKey] : [];
+    const newSkills = Array.isArray(state.customSkills[newKey]) ? state.customSkills[newKey] : [];
+
+    // Atualiza os caminhos das imagens já registradas para a nova pasta.
+    const migrated = oldSkills.map(skill => {
+      const updated = { ...skill };
+      if (typeof updated.image === "string" && updated.image.startsWith(`assets/skills/${oldKey}/`)) {
+        updated.image = updated.image.replace(
+          `assets/skills/${oldKey}/`,
+          `assets/skills/${newKey}/`
+        );
+      }
+      return updated;
+    });
+
+    state.customSkills[newKey] = [...newSkills, ...migrated];
+    delete state.customSkills[oldKey];
+
+    // Atualiza referências de classe nas skills colocadas nas estratégias, se existirem.
+    Object.values(state.bosses || {}).forEach(boss => {
+      (boss.strategies || []).forEach(strategy => {
+        (strategy.slots || []).forEach(slot => {
+          (slot.skills || []).forEach(skill => {
+            if (skill.classKey === oldKey) skill.classKey = newKey;
+            if (typeof skill.image === "string" && skill.image.startsWith(`assets/skills/${oldKey}/`)) {
+              skill.image = skill.image.replace(
+                `assets/skills/${oldKey}/`,
+                `assets/skills/${newKey}/`
+              );
+            }
+          });
+        });
+      });
+    });
+
+    return true;
+  }
+
+  // Observa o botão de renomear classe. O script principal continua abrindo/realizando
+  // o rename normalmente; depois sincronizamos a chave interna com o novo nome.
+  const renameBtn = document.getElementById("renameClassBtn");
+  if (!renameBtn) return;
+
+  renameBtn.addEventListener("click", () => {
+    const select = document.getElementById("classSelect");
+    const oldKey = select?.value;
+
+    // Aguarda o handler original terminar.
+    setTimeout(() => {
+      const classes = Array.isArray(state.classes) ? state.classes : [];
+      let renamedClass = classes.find(c => c.id === oldKey);
+
+      // Compatibilidade caso o script use key/value em vez de id/name.
+      if (!renamedClass) renamedClass = classes.find(c => c.key === oldKey);
+
+      const displayName =
+        renamedClass?.name ||
+        renamedClass?.label ||
+        document.getElementById("classNameEditor")?.value;
+
+      const newKey = slugifyClassName(displayName);
+      if (!oldKey || !newKey || oldKey === newKey) return;
+
+      migrateClassKey(oldKey, newKey);
+
+      if (renamedClass) {
+        if ("id" in renamedClass) renamedClass.id = newKey;
+        if ("key" in renamedClass) renamedClass.key = newKey;
+      }
+
+      if (saveState()) {
+        if (typeof renderClassOptions === "function") renderClassOptions();
+        if (typeof renderClassManager === "function") renderClassManager();
+
+        const refreshedSelect = document.getElementById("classSelect");
+        if (refreshedSelect) refreshedSelect.value = newKey;
+
+        if (typeof renderSkillLibrary === "function") renderSkillLibrary();
+      }
+    }, 0);
+  }, true);
+})();
