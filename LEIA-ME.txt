@@ -1,23 +1,42 @@
-FANTAMON BOSS BUILDER V5 — RECORTE DO BOSS
+FANTAMON BOSS BUILDER V6 — BOSSES PÚBLICOS
 
-Substitua no GitHub:
-- index.html
-- style.css
-- script.js
-- github-skills.js
+COMO FUNCIONA
+-------------
+Os Bosses que todos os visitantes podem ver ficam em:
+data/bosses.json
 
-O que esta versão mantém:
-- Skills com imagens hospedadas no GitHub
-- Botão para remover todas as skills da classe selecionada
-- Renomear classe atualizando ID e caminho da pasta
-- Recorte da imagem do Boss
+Quando alguém abre o site, ele baixa automaticamente esse arquivo do GitHub Pages.
 
-Como funciona o recorte:
-1. Clique para escolher a imagem do Boss.
-2. Abre automaticamente a tela "Recortar imagem do Boss".
-3. Arraste a imagem para posicionar o Boss.
-4. Use o controle de Zoom.
-5. Clique em "Usar recorte".
-6. O resultado é salvo em 400 x 560 pixels, comprimido em JPEG para ocupar menos espaço.
+COMO PUBLICAR OS BOSSES QUE VOCÊ CRIOU
+--------------------------------------
+1. Abra o site no computador onde seus Bosses estão cadastrados.
+2. Clique em "Gerar Bosses Públicos".
+3. O navegador vai gerar um arquivo chamado bosses.json.
+4. No seu repositório GitHub, crie a pasta "data" se ela ainda não existir.
+5. Envie/substitua o arquivo em:
+   data/bosses.json
+6. Faça o Commit changes.
+7. Aguarde o GitHub Pages atualizar.
+8. Abra o site no celular ou em outro dispositivo.
 
-Depois de atualizar os arquivos no GitHub Pages, use Ctrl + F5 no navegador.
+Todos os Bosses publicados no arquivo aparecerão para qualquer visitante.
+
+IMPORTANTE
+----------
+O GitHub Pages não permite que um site público grave automaticamente no
+repositório sem autenticação. Colocar um token do GitHub dentro do JavaScript
+seria inseguro, pois visitantes poderiam copiá-lo e modificar seu repositório.
+
+Por isso esta versão usa o método seguro:
+- você cria e edita os Bosses;
+- gera bosses.json com um clique;
+- substitui esse arquivo no GitHub;
+- todos passam a ver a atualização.
+
+ARQUIVOS PARA ENVIAR/SUBSTITUIR AGORA
+-------------------------------------
+index.html
+style.css
+script.js
+github-skills.js
+data/bosses.json

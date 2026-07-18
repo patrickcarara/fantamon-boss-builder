@@ -949,3 +949,14 @@ body {
   width: 100%;
 }
 
+
+
+/* v2.4 — botão de publicação dos Bosses */
+.backup-actions {
+  grid-template-columns: 1fr 1fr;
+}
+
+.public-boss-btn {
+  grid-column: 1 / -1;
+}
+
