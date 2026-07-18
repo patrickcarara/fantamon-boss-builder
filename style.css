@@ -1,45 +1,912 @@
-# Fantamon Boss Builder v2.3 Web
+:root {
+  --bg: #0d1117;
+  --panel: #151b23;
+  --panel-2: #1b2330;
+  --border: #2b3545;
+  --text: #eef3fa;
+  --muted: #97a4b7;
+  --accent: #7c5cff;
+  --accent-2: #9c86ff;
+  --danger: #ff5d73;
+  --shadow: 0 18px 50px rgba(0, 0, 0, .28);
+  --radius: 18px;
+}
 
-Esta versão foi preparada para publicação como site estático.
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Arial, sans-serif;
+  background: radial-gradient(circle at top right, rgba(124,92,255,.12), transparent 36%), var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
 
-## Arquivos para publicar
-Envie todo o conteúdo desta pasta para o repositório, mantendo:
-- index.html
-- script.js
-- style.css
-- pasta assets
-- .nojekyll
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
 
-## GitHub Pages
-1. Crie um repositório no GitHub.
-2. Envie todos os arquivos desta pasta para a raiz do repositório.
-3. Abra Settings > Pages.
-4. Em Build and deployment, selecione Deploy from a branch.
-5. Selecione a branch main e a pasta / (root).
-6. Salve e aguarde a publicação.
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 300px 1fr;
+}
 
-## Dados dos usuários
-Bosses, estratégias e skills adicionadas ficam salvos localmente no navegador de cada pessoa.
-Para transferir dados entre computadores ou navegadores, use Exportar Backup e Importar Backup.
+.sidebar {
+  border-right: 1px solid var(--border);
+  padding: 22px;
+  background: rgba(13, 17, 23, .88);
+  backdrop-filter: blur(18px);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
 
-## Atualizações
-Para atualizar o site depois, substitua os arquivos publicados pelos arquivos da nova versão.
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.brand-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--accent), #4d35d9);
+  box-shadow: 0 12px 25px rgba(124,92,255,.32);
+}
+
+.brand h1, .brand p { margin: 0; }
+.brand h1 { font-size: 20px; }
+.brand p { color: var(--muted); font-size: 13px; }
+
+.primary-btn, .secondary-btn, .danger-btn, .icon-btn {
+  border: 1px solid transparent;
+  border-radius: 11px;
+  padding: 10px 14px;
+  color: var(--text);
+  transition: .18s ease;
+}
+
+.primary-btn {
+  width: 100%;
+  background: linear-gradient(135deg, var(--accent), #6547ec);
+  font-weight: 800;
+}
+
+.primary-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+
+.secondary-btn {
+  background: var(--panel-2);
+  border-color: var(--border);
+}
+
+.secondary-btn:hover { border-color: var(--accent); }
+
+.danger-btn {
+  background: rgba(255,93,115,.09);
+  color: #ff9bab;
+  border-color: rgba(255,93,115,.28);
+}
+
+.icon-btn {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  background: var(--panel-2);
+  border-color: var(--border);
+  font-size: 21px;
+}
+
+.search-box {
+  margin: 16px 0 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  border-radius: 12px;
+}
+
+.search-box input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: transparent;
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+}
+
+.count-pill {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 3px 8px;
+  color: var(--text);
+}
+
+.boss-list { display: grid; gap: 9px; }
+
+.boss-item {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+
+.boss-item:hover, .boss-item.active {
+  background: var(--panel);
+  border-color: var(--border);
+}
+
+.boss-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 11px;
+  object-fit: cover;
+  background: var(--panel-2);
+  display: grid;
+  place-items: center;
+}
+
+.boss-item small { display: block; color: var(--muted); margin-top: 3px; }
+.star { color: #ffd76a; }
+
+.main-content { padding: 28px; }
+
+.empty-state {
+  min-height: calc(100vh - 56px);
+  display: grid;
+  place-content: center;
+  text-align: center;
+  max-width: 460px;
+  margin: auto;
+}
+
+.empty-state .primary-btn { width: auto; justify-self: center; }
+.empty-logo { font-size: 58px; }
+.empty-state h2 { margin-bottom: 6px; }
+.empty-state p { color: var(--muted); }
+
+.hidden { display: none !important; }
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 22px;
+}
+
+.topbar h2 { margin: 2px 0 0; font-size: 30px; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+.eyebrow {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: .12em;
+  font-weight: 800;
+}
+
+.card {
+  background: rgba(21, 27, 35, .92);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.workspace-grid {
+  display: grid;
+  grid-template-columns: 260px minmax(0,1fr);
+  gap: 18px;
+}
+
+.boss-panel {
+  padding: 16px;
+  align-self: start;
+  position: sticky;
+  top: 20px;
+}
+
+.boss-image-wrap {
+  width: 100%;
+  aspect-ratio: 1/1;
+  border-radius: 15px;
+  overflow: hidden;
+  border: 1px dashed var(--border);
+  background: var(--panel-2);
+}
+
+.boss-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.boss-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 72px;
+}
+
+.boss-panel h3 { margin-bottom: 8px; }
+.muted { color: var(--muted); margin-bottom: 5px; }
+
+.strategy-panel { padding: 18px; }
+.strategy-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.strategy-header select {
+  margin-top: 6px;
+  min-width: 220px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.strategy-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.slots-container { display: grid; gap: 12px; }
+
+.character-slot {
+  display: grid;
+  grid-template-columns: 155px 1fr;
+  gap: 12px;
+  padding: 13px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,.018);
+}
+
+.slot-info input, .slot-info select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 9px 10px;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+}
+
+.slot-skills {
+  min-height: 96px;
+  padding: 10px;
+  border: 1px dashed #3a465a;
+  border-radius: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  align-content: flex-start;
+}
+
+.slot-skills.dragover {
+  border-color: var(--accent);
+  background: rgba(124,92,255,.08);
+}
+
+.skill-card {
+  width: 78px;
+  padding: 7px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: var(--panel-2);
+  user-select: none;
+}
+
+.skill-card img {
+  width: 62px;
+  height: 62px;
+  object-fit: cover;
+  display: block;
+  border-radius: 8px;
+  background: #0f141c;
+}
+
+.skill-card span {
+  display: block;
+  font-size: 10px;
+  margin-top: 5px;
+  line-height: 1.15;
+  color: #dce5f4;
+  text-align: center;
+}
+
+.notes-field { display: grid; gap: 8px; margin-top: 16px; color: var(--muted); }
+.notes-field textarea {
+  min-height: 100px;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.library { margin-top: 18px; padding: 18px; }
+.library-header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 14px;
+}
+.library-header h3 { margin: 4px 0 0; }
+.class-filter { display: grid; gap: 6px; color: var(--muted); }
+.class-filter select {
+  min-width: 170px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  background: var(--panel-2);
+}
+
+.skill-library {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.library-tip { color: var(--muted); font-size: 12px; margin-bottom: 0; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.65);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.modal {
+  width: min(470px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.modal h3 { margin-top: 0; }
+.modal-field { display: grid; gap: 7px; margin: 12px 0; color: var(--muted); }
+.modal-field input {
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+.modal-actions .primary-btn { width: auto; }
+
+@media (max-width: 980px) {
+  .app-shell { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+  .workspace-grid { grid-template-columns: 1fr; }
+  .boss-panel { position: static; }
+}
+
+@media (max-width: 700px) {
+  .main-content { padding: 16px; }
+  .topbar, .strategy-header, .library-header { align-items: stretch; flex-direction: column; }
+  .topbar-actions, .strategy-actions { justify-content: flex-start; }
+  .character-slot { grid-template-columns: 1fr; }
+}
 
 
-## Atualização v2.4 Web
+/* v1.1 — quatro posições de skill por personagem */
+.skill-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(92px, 1fr));
+  gap: 10px;
+}
 
-- Removidas as 5 skills provisórias que vinham embutidas na versão inicial.
-- A biblioteca agora começa vazia e usa apenas as skills adicionadas pelo usuário.
-- Todas as skills adicionadas pelo usuário continuam com botão `×` para exclusão.
-- Isso evita imagens quebradas quando o site é publicado no GitHub Pages.
+.single-skill-slot {
+  min-height: 116px;
+  border: 1px dashed #3a465a;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  padding: 7px;
+  background: rgba(255,255,255,.012);
+  transition: .16s ease;
+}
+
+.single-skill-slot.dragover {
+  border-color: var(--accent);
+  background: rgba(124,92,255,.10);
+  transform: translateY(-1px);
+}
+
+.single-skill-slot.filled {
+  border-style: solid;
+  border-color: var(--border);
+}
+
+.single-skill-slot .skill-card {
+  width: 82px;
+}
+
+.empty-skill-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .skill-slots-grid {
+    grid-template-columns: repeat(2, minmax(92px, 1fr));
+  }
+}
 
 
-## Atualização v2.5 Web
-- Removidos fisicamente os 5 arquivos provisórios da pasta `assets/skills/mage`.
-- A pasta `mage` permanece vazia apenas para manter a estrutura do projeto.
+/* v1.2 — backup, imagens locais e data de alteração */
+.backup-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 9px;
+}
 
-## Atualização v2.6 Web
+.compact-btn {
+  padding: 8px 9px;
+  font-size: 12px;
+}
 
-- Corrigido `data/classes/mage.json`.
-- Removidas as referências às 5 skills provisórias que já não existem mais em `assets/skills/mage`.
-- O arquivo de Mage agora contém uma lista vazia de skills.
+.modified-at {
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.field-help {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.boss-preview {
+  margin-top: 14px;
+  width: 120px;
+  height: 120px;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+}
+
+.boss-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+
+/* v1.3 — painel e imagem do boss maiores */
+.workspace-grid {
+  grid-template-columns: 373px minmax(0, 1fr);
+}
+
+.boss-image-wrap {
+  width: 100%;
+  aspect-ratio: auto;
+  height: 562px;
+}
+
+@media (max-width: 980px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .boss-image-wrap {
+    height: min(562px, 75vh);
+  }
+}
+
+
+/* v1.4 — imagem do boss sempre contida dentro do quadro */
+.boss-panel {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.boss-image-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.boss-image-wrap img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  display: block;
+  object-fit: contain;
+  object-position: center;
+}
+
+
+/* v1.5 — tamanho definitivo solicitado para a imagem do boss: 400 x 560 px */
+.workspace-grid {
+  grid-template-columns: 432px minmax(0, 1fr);
+}
+
+.boss-panel {
+  width: 432px;
+  max-width: 100%;
+}
+
+.boss-image-wrap {
+  width: 400px;
+  height: 560px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.boss-image-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (max-width: 980px) {
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .boss-panel {
+    width: 100%;
+  }
+
+  .boss-image-wrap {
+    width: min(400px, 100%);
+    height: auto;
+    aspect-ratio: 5 / 7;
+  }
+}
+
+
+/* v1.6 — exportação visual */
+#exportArea {
+  padding: 2px;
+}
+
+@media print {
+  .sidebar,
+  .topbar-actions,
+  .strategy-actions,
+  .library {
+    display: none !important;
+  }
+}
+
+
+/* Ajuste solicitado — layout geral reduzido em 20% a partir da v1.6 */
+body {
+  zoom: 0.8;
+}
+
+@supports not (zoom: 0.8) {
+  body {
+    transform: scale(0.8);
+    transform-origin: top left;
+    width: 125%;
+    min-height: 125vh;
+  }
+}
+
+
+/* v1.9 — importação múltipla de skills */
+.skill-import-actions {
+  display: flex;
+  align-items: end;
+}
+
+.skill-import-actions .secondary-btn {
+  white-space: nowrap;
+}
+
+.empty-library-message {
+  width: 100%;
+  padding: 24px;
+  border: 1px dashed var(--border);
+  border-radius: 14px;
+  color: var(--muted);
+  text-align: center;
+  line-height: 1.6;
+}
+
+.custom-skill-wrap {
+  position: relative;
+}
+
+.custom-skill-wrap .skill-card {
+  height: 100%;
+}
+
+.remove-custom-skill {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid rgba(255,93,115,.35);
+  border-radius: 50%;
+  background: #2a1720;
+  color: #ff9bab;
+  font-weight: 900;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.remove-custom-skill:hover {
+  background: #47202b;
+}
+
+@media (max-width: 700px) {
+  .skill-import-actions {
+    width: 100%;
+  }
+
+  .skill-import-actions .secondary-btn {
+    width: 100%;
+  }
+}
+
+
+/* v2.0 — gerenciamento de classes */
+.class-selector-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.class-selector-row select {
+  flex: 1;
+}
+
+.class-manager-grid {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 18px;
+}
+
+.class-manager-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.class-manager-item {
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.class-manager-item.active {
+  border-color: var(--accent);
+  background: rgba(124,92,255,.12);
+}
+
+.class-editor-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.class-editor-actions .primary-btn {
+  width: 100%;
+}
+
+.class-modal {
+  width: min(650px, 100%);
+}
+
+@media (max-width: 650px) {
+  .class-manager-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .class-selector-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+
+/* v2.1 — skills maiores e nome somente ao passar o mouse */
+.skill-card {
+  position: relative;
+  width: 88px;
+  padding: 6px;
+}
+
+.skill-card img {
+  width: 76px;
+  height: 76px;
+  object-fit: cover;
+}
+
+.skill-card span {
+  display: none !important;
+}
+
+.skill-card::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%) translateY(4px);
+  min-width: max-content;
+  max-width: 220px;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #0b0f15;
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 8px 24px rgba(0,0,0,.35);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 50;
+  transition: opacity .12s ease, transform .12s ease;
+}
+
+.skill-card:hover::after {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.single-skill-slot .skill-card {
+  width: 84px;
+}
+
+.single-skill-slot .skill-card img {
+  width: 72px;
+  height: 72px;
+}
+
+.skill-library {
+  overflow: visible;
+}
+
+.custom-skill-wrap {
+  overflow: visible;
+}
+
+
+/* v2.2 — alinhar a biblioteca ao fim do cartão do boss */
+.workspace-grid {
+  align-items: start;
+}
+
+.strategy-panel {
+  height: 700px;
+  min-height: 700px;
+  max-height: 700px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.strategy-header {
+  flex: 0 0 auto;
+  margin-bottom: 10px;
+}
+
+.slots-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.character-slot {
+  min-height: 0;
+  padding: 8px 10px;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 9px;
+}
+
+.slot-info input,
+.slot-info select {
+  margin-top: 4px;
+  padding: 6px 8px;
+}
+
+.skill-slots-grid {
+  gap: 7px;
+  min-width: 0;
+  align-items: center;
+}
+
+.single-skill-slot {
+  min-height: 86px;
+  padding: 4px;
+}
+
+.notes-field {
+  flex: 0 0 auto;
+  margin-top: 8px;
+  gap: 5px;
+}
+
+.notes-field textarea {
+  min-height: 58px;
+  height: 58px;
+  padding: 8px 10px;
+}
+
+.library {
+  margin-top: 12px;
+}
+
+/* Em telas menores, volta ao comportamento natural para evitar apertar demais. */
+@media (max-width: 1200px) {
+  .strategy-panel {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .slots-container {
+    grid-template-rows: none;
+  }
+}
