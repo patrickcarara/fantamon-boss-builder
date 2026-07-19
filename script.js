@@ -121,12 +121,14 @@ function getSelectedStrategy() {
 
 function showModal(title, fields, onConfirm) {
   el("modalTitle").textContent = title;
-  el("modalFields").innerHTML = fields.map(f => `
-    <label class="modal-field">
-      <span>${f.label}</span>
-      <input id="${f.id}" type="${f.type || "text"}" value="${escapeHtml(f.value || "")}" placeholder="${escapeHtml(f.placeholder || "")}" />
-    </label>
-  `).join("");
+  el("modalFields").innerHTML = fields
+    .filter(f => f.id !== "bossImageInput")
+    .map(f => `
+      <label class="modal-field">
+        <span>${f.label}</span>
+        <input id="${f.id}" type="${f.type || "text"}" value="${escapeHtml(f.value || "")}" placeholder="${escapeHtml(f.placeholder || "")}" />
+      </label>
+    `).join("");
 
   const hasBossImageField = fields.some(f => f.id === "bossImageInput");
   el("bossImageUploadArea").classList.toggle("hidden", !hasBossImageField);
@@ -1057,7 +1059,7 @@ function addBoss() {
     const boss = {
       id: uid("boss"),
       name,
-      image: pendingBossImage || el("bossImageInput").value.trim(),
+      image: pendingBossImage,
       favorite: false,
       strategies: [strategy]
     };
@@ -1098,7 +1100,7 @@ function editBoss() {
     }
 
     boss.name = name;
-    boss.image = pendingBossImage || el("bossImageInput").value.trim();
+    boss.image = pendingBossImage;
     saveState();
     hideModal();
     render();
