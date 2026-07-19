@@ -1244,3 +1244,32 @@ body.read-only [data-slot-name] {
     min-width: 0;
   }
 }
+
+
+/* v3.0 — fluxo de cadastro de novo Boss com nome automático */
+.boss-auto-name-help {
+  margin: 12px 0 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(124,92,255,.08);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.boss-name-edit-btn {
+  margin-top: -2px;
+  width: 100%;
+  font-weight: 800;
+}
+
+.locked-name-input {
+  opacity: .78;
+  cursor: not-allowed;
+  background: #111722 !important;
+}
+
+#bossImageUploadArea {
+  margin-top: 4px;
+}

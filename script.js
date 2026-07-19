@@ -136,6 +136,15 @@ function showModal(title, fields, onConfirm) {
   pendingBossOcrName = "";
   setBossOcrStatus("");
 
+  el("bossAutoNameHelp")?.classList.add("hidden");
+  el("bossNameEditBtn")?.classList.add("hidden");
+
+  const bossNameInput = el("bossNameInput");
+  if (bossNameInput) {
+    bossNameInput.readOnly = false;
+    bossNameInput.classList.remove("locked-name-input");
+  }
+
   if (hasBossImageField && pendingBossImage) {
     el("bossImagePreview").src = pendingBossImage;
     el("bossImagePreviewWrap").classList.remove("hidden");
@@ -154,6 +163,8 @@ function hideModal() {
   pendingBossImage = "";
   pendingBossOcrName = "";
   setBossOcrStatus("");
+  el("bossAutoNameHelp")?.classList.add("hidden");
+  el("bossNameEditBtn")?.classList.add("hidden");
 }
 
 function escapeHtml(value) {
@@ -1029,7 +1040,7 @@ function touchStrategy(strategy) {
 
 function addBoss() {
   showModal("Novo Boss", [
-    { id: "bossNameInput", label: "Nome do Boss", placeholder: "Ex.: Ancient Dragon" },
+    { id: "bossNameInput", label: "Nome do Boss gerado", placeholder: "O nome aparecerá aqui após escolher a imagem" },
     { id: "bossImageInput", label: "Imagem do Boss (opcional)", placeholder: "Ex.: assets/bosses/dragon.png" }
   ], () => {
     const name = el("bossNameInput").value.trim();
@@ -1057,7 +1068,17 @@ function addBoss() {
     hideModal();
     render();
   });
+
+  const bossNameInput = el("bossNameInput");
+  if (bossNameInput) {
+    bossNameInput.readOnly = true;
+    bossNameInput.classList.add("locked-name-input");
+  }
+
+  el("bossAutoNameHelp")?.classList.remove("hidden");
+  el("bossNameEditBtn")?.classList.remove("hidden");
 }
+
 
 function editBoss() {
   const boss = getSelectedBoss();
@@ -1500,6 +1521,16 @@ el("strategyNotes").addEventListener("input", () => {
   touchStrategy(strategy);
 });
 
+
+el("bossNameEditBtn").addEventListener("click", () => {
+  const input = el("bossNameInput");
+  if (!input) return;
+
+  input.readOnly = false;
+  input.classList.remove("locked-name-input");
+  input.focus();
+  input.select();
+});
 
 el("duplicateBossExitBtn").addEventListener("click", () => {
   el("duplicateBossBackdrop").classList.add("hidden");

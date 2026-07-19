@@ -140,13 +140,24 @@
   <div id="modalBackdrop" class="modal-backdrop hidden">
     <div class="modal">
       <h3 id="modalTitle">Novo Boss</h3>
-      <div id="modalFields"></div>
+
       <div id="bossImageUploadArea" class="modal-field hidden">
-        <span>Ou escolher imagem do computador</span>
+        <span>Escolher imagem do Boss</span>
         <input id="bossImageFileInput" type="file" accept="image/*" />
         <small class="field-help">A imagem do boss continua sendo salva no navegador.</small>
         <small id="bossOcrStatus" class="field-help boss-ocr-status"></small>
       </div>
+
+      <p id="bossAutoNameHelp" class="boss-auto-name-help hidden">
+        O nome do Boss será gerado automaticamente. Caso esteja errado, clique em <strong>EDITAR NOME</strong> abaixo.
+      </p>
+
+      <div id="modalFields"></div>
+
+      <button id="bossNameEditBtn" class="secondary-btn boss-name-edit-btn hidden" type="button">
+        EDITAR NOME
+      </button>
+
       <div id="bossImagePreviewWrap" class="boss-preview hidden">
         <img id="bossImagePreview" alt="Prévia da imagem do boss" />
       </div>
