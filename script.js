@@ -1,5 +1,279 @@
 const STORAGE_KEY = "fantamonBossBuilder_v1";
 
+
+const LANGUAGE_KEY = "fantamonBossBuilder_language";
+let currentLanguage = localStorage.getItem(LANGUAGE_KEY) || "pt";
+
+const I18N = {
+  pt: {
+    newBoss: "+ Novo Boss",
+    exportBackup: "Exportar Backup",
+    importBackup: "Importar Backup",
+    searchBoss: "Pesquisar boss...",
+    bosses: "Bosses",
+    createFirstBoss: "Criar primeiro Boss",
+    emptyText: "Cadastre um boss para começar a montar suas estratégias.",
+    selectedBoss: "Boss selecionado",
+    editBoss: "Editar Boss",
+    deleteBoss: "Excluir Boss",
+    mainStrategy: "Estratégia principal:",
+    strategy: "Estratégia",
+    newStrategy: "+ Nova",
+    rename: "Renomear",
+    duplicate: "Duplicar",
+    principal: "Principal",
+    delete: "Excluir",
+    notes: "Observações da estratégia",
+    notesPlaceholder: "Ex.: guardar a ultimate para a fase 2...",
+    skillLibrary: "Biblioteca de Skills",
+    dragSkills: "Arraste as skills para um dos 4 slots",
+    classLabel: "Classe",
+    manageClasses: "Gerenciar Classes",
+    registerSkills: "+ Registrar Skills do GitHub",
+    removeAllSkills: "Remover todas as Skills",
+    chooseBossImage: "Escolher imagem do Boss",
+    localImageHelp: "A imagem do boss continua sendo salva no navegador.",
+    autoNameHelp: "O nome do Boss será gerado automaticamente. Caso esteja errado, clique em EDITAR NOME abaixo.",
+    editName: "EDITAR NOME",
+    cancel: "Cancelar",
+    confirm: "Confirmar",
+    cropBoss: "Recortar imagem do Boss",
+    cropHelp: "Arraste a imagem para posicionar o Boss dentro do quadro. Use o controle para aumentar ou diminuir o zoom.",
+    zoom: "Zoom",
+    useCrop: "Usar recorte",
+    chooseSkill: "Escolher Skill",
+    removeSkill: "Remover Skill",
+    manageCharacters: "Gerenciar Personagens",
+    registeredCharacters: "Personagens cadastrados",
+    characterName: "Nome do personagem",
+    addCharacter: "+ Adicionar Personagem",
+    renameSelected: "Renomear Selecionado",
+    deleteSelected: "Excluir Selecionado",
+    characterHelp: "Os personagens cadastrados ficam disponíveis nos quatro espaços de cada estratégia.",
+    finish: "Concluir",
+    manageClassesTitle: "Gerenciar Classes",
+    registeredClasses: "Classes cadastradas",
+    className: "Nome da classe",
+    addClass: "+ Adicionar Classe",
+    renameSelectedClass: "Renomear Selecionada",
+    deleteSelectedClass: "Excluir Selecionada",
+    classHelp: "Renomear também atualiza o identificador e o caminho da pasta de skills no GitHub.",
+    duplicateBossTitle: "Boss já cadastrado",
+    exit: "Sair",
+    bossNameGenerated: "Nome do Boss gerado",
+    bossNamePlaceholder: "O nome aparecerá aqui após escolher a imagem",
+    character: "Personagem",
+    selectCharacter: "Selecionar personagem",
+    lastChange: "Última alteração",
+    savedStrategy: "estratégia salva",
+    savedStrategies: "estratégias salvas",
+    noStrategy: "Sem estratégia",
+    noSkillsClass: "${t("noSkillsClass")}",
+    noSkillsLibrary: "Nenhuma skill cadastrada para esta classe ainda.",
+    importSkillsHelp: "Use + Adicionar várias Skills para importar imagens.",
+    classPrefix: "Classe",
+    ocrReading: "Lendo nome do Boss...",
+    ocrNotFound: "Não consegui identificar o nome automaticamente. Você ainda pode digitá-lo.",
+    ocrDetected: "Boss identificado",
+    ocrAlreadyExists: "Ele já está cadastrado.",
+    ocrError: "Não foi possível ler o nome automaticamente. Você pode digitá-lo.",
+    bossAlreadyRegistered: "já está cadastrado na sua lista.",
+    noCharacters: "Nenhum personagem cadastrado.",
+    selectClass: "Selecione uma classe.",
+    noBossName: "Digite o nome do boss.",
+    noStrategyName: "Digite um nome.",
+    newBossTitle: "Novo Boss",
+    editBossTitle: "Editar Boss",
+    newStrategyTitle: "Nova Estratégia",
+    renameStrategyTitle: "Renomear Estratégia"
+  },
+  en: {
+    newBoss: "+ New Boss",
+    exportBackup: "Export Backup",
+    importBackup: "Import Backup",
+    searchBoss: "Search boss...",
+    bosses: "Bosses",
+    createFirstBoss: "Create first Boss",
+    emptyText: "Add a boss to start building your strategies.",
+    selectedBoss: "Selected boss",
+    editBoss: "Edit Boss",
+    deleteBoss: "Delete Boss",
+    mainStrategy: "Main strategy:",
+    strategy: "Strategy",
+    newStrategy: "+ New",
+    rename: "Rename",
+    duplicate: "Duplicate",
+    principal: "Main",
+    delete: "Delete",
+    notes: "Strategy notes",
+    notesPlaceholder: "Ex.: save the ultimate for phase 2...",
+    skillLibrary: "Skill Library",
+    dragSkills: "Drag skills into one of the 4 slots",
+    classLabel: "Class",
+    manageClasses: "Manage Classes",
+    registerSkills: "+ Register GitHub Skills",
+    removeAllSkills: "Remove all Skills",
+    chooseBossImage: "Choose Boss image",
+    localImageHelp: "The boss image is still saved in your browser.",
+    autoNameHelp: "The Boss name will be generated automatically. If it is wrong, click EDIT NAME below.",
+    editName: "EDIT NAME",
+    cancel: "Cancel",
+    confirm: "Confirm",
+    cropBoss: "Crop Boss image",
+    cropHelp: "Drag the image to position the Boss inside the frame. Use the control to zoom in or out.",
+    zoom: "Zoom",
+    useCrop: "Use crop",
+    chooseSkill: "Choose Skill",
+    removeSkill: "Remove Skill",
+    manageCharacters: "Manage Characters",
+    registeredCharacters: "Registered characters",
+    characterName: "Character name",
+    addCharacter: "+ Add Character",
+    renameSelected: "Rename Selected",
+    deleteSelected: "Delete Selected",
+    characterHelp: "Registered characters are available in all four character slots of each strategy.",
+    finish: "Done",
+    manageClassesTitle: "Manage Classes",
+    registeredClasses: "Registered classes",
+    className: "Class name",
+    addClass: "+ Add Class",
+    renameSelectedClass: "Rename Selected",
+    deleteSelectedClass: "Delete Selected",
+    classHelp: "Renaming also updates the identifier and the skills folder path on GitHub.",
+    duplicateBossTitle: "Boss already registered",
+    exit: "Exit",
+    bossNameGenerated: "Generated Boss name",
+    bossNamePlaceholder: "The name will appear here after choosing the image",
+    character: "Character",
+    selectCharacter: "Select character",
+    lastChange: "Last change",
+    savedStrategy: "saved strategy",
+    savedStrategies: "saved strategies",
+    noStrategy: "No strategy",
+    noSkillsClass: "No skills registered for this class.",
+    noSkillsLibrary: "No skills registered for this class yet.",
+    importSkillsHelp: "Use + Add multiple Skills to import images.",
+    classPrefix: "Class",
+    ocrReading: "Reading Boss name...",
+    ocrNotFound: "I could not identify the name automatically. You can still type it.",
+    ocrDetected: "Boss identified",
+    ocrAlreadyExists: "It is already registered.",
+    ocrError: "The name could not be read automatically. You can type it.",
+    bossAlreadyRegistered: "is already registered in your list.",
+    noCharacters: "No characters registered.",
+    selectClass: "Select a class.",
+    noBossName: "Enter the boss name.",
+    noStrategyName: "Enter a name.",
+    newBossTitle: "New Boss",
+    editBossTitle: "Edit Boss",
+    newStrategyTitle: "New Strategy",
+    renameStrategyTitle: "Rename Strategy"
+  }
+};
+
+function t(key) {
+  return I18N[currentLanguage]?.[key] ?? I18N.pt[key] ?? key;
+}
+
+function setText(selector, key) {
+  const node = document.querySelector(selector);
+  if (node) node.textContent = t(key);
+}
+
+function applyLanguage() {
+  document.documentElement.lang = currentLanguage === "en" ? "en" : "pt-BR";
+
+  setText("#newBossBtn", "newBoss");
+  setText("#exportBackupBtn", "exportBackup");
+  setText("#importBackupBtn", "importBackup");
+  setText("#emptyNewBossBtn", "createFirstBoss");
+  setText("#editBossBtn", "editBoss");
+  setText("#deleteBossBtn", "deleteBoss");
+  setText("#newStrategyBtn", "newStrategy");
+  setText("#renameStrategyBtn", "rename");
+  setText("#duplicateStrategyBtn", "duplicate");
+  setText("#deleteStrategyBtn", "delete");
+  setText("#manageClassesBtn", "manageClasses");
+  setText("#addSkillsBtn", "registerSkills");
+  setText("#removeAllClassSkillsBtn", "removeAllSkills");
+  setText("#bossNameEditBtn", "editName");
+  setText("#modalCancelBtn", "cancel");
+  setText("#modalConfirmBtn", "confirm");
+  setText("#cropCancelBtn", "cancel");
+  setText("#cropConfirmBtn", "useCrop");
+  setText("#mobileSkillPickerRemoveBtn", "removeSkill");
+  setText("#mobileSkillPickerCloseBtn", "cancel");
+  setText("#addCharacterBtn", "addCharacter");
+  setText("#renameCharacterBtn", "renameSelected");
+  setText("#deleteCharacterBtn", "deleteSelected");
+  setText("#closeCharacterManagerBtn", "finish");
+  setText("#addClassBtn", "addClass");
+  setText("#renameClassBtn", "renameSelectedClass");
+  setText("#deleteClassBtn", "deleteSelectedClass");
+  setText("#closeClassManagerBtn", "finish");
+  setText("#duplicateBossExitBtn", "exit");
+
+  const bossSearch = el("bossSearch");
+  if (bossSearch) bossSearch.placeholder = t("searchBoss");
+
+  const notes = el("strategyNotes");
+  if (notes) notes.placeholder = t("notesPlaceholder");
+
+  const autoHelp = el("bossAutoNameHelp");
+  if (autoHelp) autoHelp.innerHTML =
+    currentLanguage === "en"
+      ? 'The Boss name will be generated automatically. If it is wrong, click <strong>EDIT NAME</strong> below.'
+      : 'O nome do Boss será gerado automaticamente. Caso esteja errado, clique em <strong>EDITAR NOME</strong> abaixo.';
+
+  document.querySelectorAll(".section-title span:first-child").forEach(n => n.textContent = t("bosses"));
+
+  const staticPairs = [
+    [".empty-state p", "emptyText"],
+    [".topbar .eyebrow", "selectedBoss"],
+    [".boss-panel .muted", "mainStrategy"],
+    [".strategy-header .eyebrow", "strategy"],
+    [".notes-field > span", "notes"],
+    [".library .library-header .eyebrow", "skillLibrary"],
+    [".library .library-header h3", "dragSkills"],
+    [".class-filter > span", "classLabel"],
+    ["#bossImageUploadArea > span", "chooseBossImage"],
+    ["#bossImageUploadArea .field-help:first-of-type", "localImageHelp"],
+    [".crop-modal h3", "cropBoss"],
+    [".crop-modal > .field-help", "cropHelp"],
+    [".crop-zoom-field > span", "zoom"],
+    [".mobile-skill-picker-modal h3", "chooseSkill"],
+    [".character-modal h3", "manageCharacters"],
+    [".character-modal .character-manager-grid > div:first-child .eyebrow", "registeredCharacters"],
+    [".character-editor .modal-field span", "characterName"],
+    [".character-editor .field-help", "characterHelp"],
+    [".class-modal h3", "manageClassesTitle"],
+    [".class-modal .class-manager-grid > div:first-child .eyebrow", "registeredClasses"],
+    [".class-editor .modal-field span", "className"],
+    [".class-editor .field-help", "classHelp"],
+    [".duplicate-boss-modal h3", "duplicateBossTitle"]
+  ];
+  staticPairs.forEach(([selector, key]) => setText(selector, key));
+
+  const charInput = el("characterNameEditor");
+  if (charInput) charInput.placeholder = currentLanguage === "en" ? "Ex.: Godwhy" : "Ex.: Godwhy";
+  const classInput = el("classNameEditor");
+  if (classInput) classInput.placeholder = currentLanguage === "en" ? "Ex.: Assassin" : "Ex.: Assassin";
+
+  el("langPtBtn")?.classList.toggle("active", currentLanguage === "pt");
+  el("langEnBtn")?.classList.toggle("active", currentLanguage === "en");
+
+  // Re-renderiza partes dinâmicas no idioma selecionado.
+  render();
+  renderCharacterManager?.();
+}
+
+function setLanguage(lang) {
+  currentLanguage = lang === "en" ? "en" : "pt";
+  localStorage.setItem(LANGUAGE_KEY, currentLanguage);
+  applyLanguage();
+}
+
+
 const DEFAULT_CLASSES = [
   { id: "mage", name: "Mage" },
   { id: "warrior", name: "Warrior" },
@@ -196,7 +470,7 @@ function findBossByName(name, excludeBossId = null) {
 
 function showDuplicateBoss(existingBoss) {
   el("duplicateBossMessage").textContent =
-    `"${existingBoss.name}" já está cadastrado na sua lista.`;
+    `"${existingBoss.name}" ${t("bossAlreadyRegistered")}`;
   el("duplicateBossBackdrop").classList.remove("hidden");
 }
 
@@ -255,7 +529,7 @@ async function recognizeBossNameFromImage(dataUrl) {
   const result = await window.Tesseract.recognize(dataUrl, "eng", {
     logger: info => {
       if (info.status === "recognizing text" && typeof info.progress === "number") {
-        setBossOcrStatus(`Lendo nome do Boss... ${Math.round(info.progress * 100)}%`);
+        setBossOcrStatus(`${t("ocrReading")} ${Math.round(info.progress * 100)}%`);
       }
     }
   });
@@ -267,12 +541,12 @@ async function processBossOcr(dataUrl) {
   if (bossOcrBusy) return;
   bossOcrBusy = true;
   pendingBossOcrName = "";
-  setBossOcrStatus("Lendo nome do Boss...");
+  setBossOcrStatus(t("ocrReading"));
 
   try {
     const detectedName = await recognizeBossNameFromImage(dataUrl);
     if (!detectedName) {
-      setBossOcrStatus("Não consegui identificar o nome automaticamente. Você ainda pode digitá-lo.");
+      setBossOcrStatus(t("ocrNotFound"));
       return;
     }
 
@@ -285,16 +559,16 @@ async function processBossOcr(dataUrl) {
     const duplicate = findBossByName(detectedName, isEditing ? editingBoss?.id : null);
 
     if (duplicate) {
-      setBossOcrStatus(`Boss identificado: ${detectedName}. Ele já está cadastrado.`);
+      setBossOcrStatus(`${t("ocrDetected")}: ${detectedName}. ${t("ocrAlreadyExists")}`);
       hideModal();
       showDuplicateBoss(duplicate);
       return;
     }
 
-    setBossOcrStatus(`Boss identificado: ${detectedName}`);
+    setBossOcrStatus(`${t("ocrDetected")}: ${detectedName}`);
   } catch (error) {
     console.error("Erro no OCR do Boss:", error);
-    setBossOcrStatus("Não foi possível ler o nome automaticamente. Você pode digitá-lo.", true);
+    setBossOcrStatus(t("ocrError"), true);
   } finally {
     bossOcrBusy = false;
   }
@@ -331,7 +605,7 @@ function renderCharacterManager() {
           ${escapeHtml(name)}
         </button>
       `).join("")
-    : `<div class="field-help">Nenhum personagem cadastrado.</div>`;
+    : `<div class="field-help">${t("noCharacters")}</div>`;
 
   el("characterNameEditor").value = selectedManagedCharacter || "";
 
@@ -507,7 +781,7 @@ function renameSelectedClass() {
   const name = el("classNameEditor").value.trim();
   const selected = getClasses().find(c => c.id === selectedManagedClassId);
 
-  if (!selected) return alert("Selecione uma classe.");
+  if (!selected) return alert(t("selectClass"));
   if (!name) return alert("Digite o novo nome da classe.");
 
   const oldId = selected.id;
@@ -624,7 +898,7 @@ function deleteSelectedClass() {
   const classes = getClasses();
   const selected = classes.find(c => c.id === selectedManagedClassId);
 
-  if (!selected) return alert("Selecione uma classe.");
+  if (!selected) return alert(t("selectClass"));
   if (classes.length <= 1) return alert("É necessário manter pelo menos uma classe.");
 
   const hasSkills = (state.customSkills?.[selected.id]?.length || 0) > 0 ||
@@ -693,7 +967,7 @@ function render() {
   }
 
   const principal = boss.strategies.find(s => s.principal);
-  el("principalStrategyName").textContent = principal?.name || "Nenhuma";
+  el("principalStrategyName").textContent = principal?.name || t("noStrategy");
 
   renderStrategies(boss);
   renderSlots();
@@ -712,7 +986,7 @@ function renderBossList() {
 
   el("bossCount").textContent = state.bosses.length;
   el("bossList").innerHTML = bosses.map(b => {
-    const principal = b.strategies.find(s => s.principal)?.name || "Sem estratégia";
+    const principal = b.strategies.find(s => s.principal)?.name || t("noStrategy");
     const thumb = b.image
       ? `<img class="boss-thumb" src="${escapeHtml(b.image)}" alt="">`
       : `<div class="boss-thumb">🐉</div>`;
@@ -752,13 +1026,13 @@ function renderStrategies(boss) {
 
   const strategy = getSelectedStrategy();
   el("strategyCountBadge").textContent = boss.strategies.length;
-  el("strategyCountBadge").title = `${boss.strategies.length} estratégia${boss.strategies.length === 1 ? "" : "s"} salva${boss.strategies.length === 1 ? "" : "s"}`;
+  el("strategyCountBadge").title = `${boss.strategies.length} ${boss.strategies.length === 1 ? t("savedStrategy") : t("savedStrategies")}`;
   el("strategyNotes").value = strategy?.notes || "";
-  el("setPrincipalBtn").textContent = strategy?.principal ? "★ Principal" : "☆ Principal";
+  el("setPrincipalBtn").textContent = strategy?.principal ? `★ ${t("principal")}` : `☆ ${t("principal")}`;
 
   if (strategy?.modifiedAt) {
     const modified = new Date(strategy.modifiedAt);
-    el("strategyModifiedAt").textContent = `Última alteração: ${modified.toLocaleString("pt-BR")}`;
+    el("strategyModifiedAt").textContent = `${t("lastChange")}: ${modified.toLocaleString(currentLanguage === "en" ? "en-US" : "pt-BR")}`;
   } else {
     el("strategyModifiedAt").textContent = "";
   }
@@ -793,12 +1067,12 @@ function openMobileSkillPicker(slotId, skillIndex) {
   const skills = getSkillsForClass(classId);
 
   mobileSkillPickerTarget = { slotId, skillIndex };
-  el("mobileSkillPickerClass").textContent = `Classe: ${classNameById(classId)}`;
+  el("mobileSkillPickerClass").textContent = `${t("classPrefix")}: ${classNameById(classId)}`;
 
   if (skills.length === 0) {
     el("mobileSkillPickerGrid").innerHTML = `
       <div class="empty-library-message">
-        Nenhuma skill cadastrada para esta classe.
+        ${t("noSkillsClass")}
       </div>
     `;
   } else {
@@ -851,11 +1125,11 @@ function renderSlots() {
     <div class="character-slot">
       <div class="slot-info">
         <div class="slot-title-row">
-          <div class="eyebrow">Personagem ${index + 1}</div>
+          <div class="eyebrow">${t("character")} ${index + 1}</div>
           ${index === 0 ? `<button class="character-gear-btn" data-open-character-manager title="Gerenciar personagens" aria-label="Gerenciar personagens">⚙️</button>` : ""}
         </div>
         <select data-slot-name="${slot.id}">
-          <option value="">Selecionar personagem</option>
+          <option value="">${t("selectCharacter")}</option>
           ${getCharacters().map(name => `
             <option value="${escapeHtml(name)}" ${slot.name === name ? "selected" : ""}>${escapeHtml(name)}</option>
           `).join("")}
@@ -1041,12 +1315,12 @@ function touchStrategy(strategy) {
 }
 
 function addBoss() {
-  showModal("Novo Boss", [
-    { id: "bossNameInput", label: "Nome do Boss gerado", placeholder: "O nome aparecerá aqui após escolher a imagem" },
+  showModal(t("newBossTitle"), [
+    { id: "bossNameInput", label: t("bossNameGenerated"), placeholder: t("bossNamePlaceholder") },
     { id: "bossImageInput", label: "Imagem do Boss (opcional)", placeholder: "Ex.: assets/bosses/dragon.png" }
   ], () => {
     const name = el("bossNameInput").value.trim();
-    if (!name) return alert("Digite o nome do boss.");
+    if (!name) return alert(t("noBossName"));
 
     const duplicate = findBossByName(name);
     if (duplicate) {
@@ -1085,12 +1359,12 @@ function addBoss() {
 function editBoss() {
   const boss = getSelectedBoss();
   if (!boss) return;
-  showModal("Editar Boss", [
+  showModal(t("editBossTitle"), [
     { id: "bossNameInput", label: "Nome do Boss", value: boss.name },
     { id: "bossImageInput", label: "Imagem do Boss", value: boss.image || "", placeholder: "assets/bosses/arquivo.png" }
   ], () => {
     const name = el("bossNameInput").value.trim();
-    if (!name) return alert("Digite o nome do boss.");
+    if (!name) return alert(t("noBossName"));
 
     const duplicate = findBossByName(name, boss.id);
     if (duplicate) {
@@ -1109,11 +1383,11 @@ function editBoss() {
 
 function newStrategy() {
   const boss = getSelectedBoss();
-  showModal("Nova Estratégia", [
+  showModal(t("newStrategyTitle"), [
     { id: "strategyNameInput", label: "Nome da estratégia", placeholder: "Ex.: Mage + Priest" }
   ], () => {
     const name = el("strategyNameInput").value.trim();
-    if (!name) return alert("Digite um nome.");
+    if (!name) return alert(t("noStrategyName"));
     const strategy = createStrategy(name, boss.strategies.length === 0);
     boss.strategies.push(strategy);
     selectedStrategyId = strategy.id;
@@ -1126,11 +1400,11 @@ function newStrategy() {
 function renameStrategy() {
   const strategy = getSelectedStrategy();
   if (!strategy) return;
-  showModal("Renomear Estratégia", [
+  showModal(t("renameStrategyTitle"), [
     { id: "strategyNameInput", label: "Novo nome", value: strategy.name }
   ], () => {
     const name = el("strategyNameInput").value.trim();
-    if (!name) return alert("Digite um nome.");
+    if (!name) return alert(t("noStrategyName"));
     strategy.name = name;
     touchStrategy(strategy);
     hideModal();
@@ -1534,6 +1808,9 @@ el("bossNameEditBtn").addEventListener("click", () => {
   input.select();
 });
 
+el("langPtBtn").addEventListener("click", () => setLanguage("pt"));
+el("langEnBtn").addEventListener("click", () => setLanguage("en"));
+
 el("duplicateBossExitBtn").addEventListener("click", () => {
   el("duplicateBossBackdrop").classList.add("hidden");
 });
@@ -1642,4 +1919,4 @@ window.FantamonApp = {
 };
 
 
-render();
+applyLanguage();

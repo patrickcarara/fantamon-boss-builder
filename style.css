@@ -1273,3 +1273,34 @@ body.read-only [data-slot-name] {
 #bossImageUploadArea {
   margin-top: 4px;
 }
+
+
+/* v3.1 — seletor de idioma */
+.language-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin: -6px 0 14px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.language-btn {
+  padding: 4px 6px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.language-btn:hover,
+.language-btn.active {
+  color: var(--text);
+}
+
+.language-btn.active {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
