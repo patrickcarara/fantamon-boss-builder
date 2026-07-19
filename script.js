@@ -216,12 +216,18 @@ function cleanOcrBossName(rawText) {
   for (let candidate of candidates) {
     candidate = candidate
       .replace(/\b(Elite Monster|Monster|Challenge|Battle|Combat)\b.*$/i, "")
-      .replace(/[|_[\]{}<>]/g, " ")
+      // Remove símbolos e ícones que o OCR possa interpretar junto do nome.
+      .replace(/[^A-Za-zÀ-ÖØ-öø-ÿ'’\-\s]/g, " ")
       .replace(/\s+/g, " ")
+      .trim()
+      // Remove um caractere isolado no fim, comum quando o ícone vira "O", "S", etc.
+      .replace(/\s+[A-Za-z]$/g, "")
       .trim();
 
     if (candidate.length >= 4 && candidate.length <= 50) {
-      return candidate.replace(/\b\w/g, c => c.toUpperCase());
+      return candidate
+        .toLowerCase()
+        .replace(/(^|[\s\-'’])([a-zà-öø-ÿ])/g, (_, sep, letter) => sep + letter.toUpperCase());
     }
   }
 
@@ -832,7 +838,7 @@ function renderSlots() {
     <div class="character-slot">
       <div class="slot-info">
         <div class="slot-title-row">
-          <div class="eyebrow">Personagem ${index + 1}${index === 0 ? " (*)" : ""}</div>
+          <div class="eyebrow">Personagem ${index + 1}</div>
           ${index === 0 ? `<button class="character-gear-btn" data-open-character-manager title="Gerenciar personagens" aria-label="Gerenciar personagens">⚙️</button>` : ""}
         </div>
         <select data-slot-name="${slot.id}">
