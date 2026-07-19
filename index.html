@@ -81,7 +81,10 @@
             <div class="strategy-header">
               <div>
                 <div class="eyebrow">Estratégia</div>
-                <select id="strategySelect"></select>
+                <div class="strategy-select-row">
+                  <select id="strategySelect"></select>
+                  <span id="strategyCountBadge" class="strategy-count-badge" title="Quantidade de estratégias salvas">1</span>
+                </div>
                 <div id="strategyModifiedAt" class="modified-at"></div>
               </div>
               <div class="strategy-actions">
@@ -142,6 +145,7 @@
         <span>Ou escolher imagem do computador</span>
         <input id="bossImageFileInput" type="file" accept="image/*" />
         <small class="field-help">A imagem do boss continua sendo salva no navegador.</small>
+        <small id="bossOcrStatus" class="field-help boss-ocr-status"></small>
       </div>
       <div id="bossImagePreviewWrap" class="boss-preview hidden">
         <img id="bossImagePreview" alt="Prévia da imagem do boss" />
@@ -153,6 +157,17 @@
     </div>
   </div>
 
+
+
+  <div id="duplicateBossBackdrop" class="modal-backdrop hidden">
+    <div class="modal duplicate-boss-modal">
+      <h3>Boss já cadastrado</h3>
+      <p id="duplicateBossMessage" class="duplicate-boss-message"></p>
+      <div class="modal-actions">
+        <button id="duplicateBossExitBtn" class="primary-btn">Sair</button>
+      </div>
+    </div>
+  </div>
 
   <div id="cropModalBackdrop" class="modal-backdrop hidden">
     <div class="modal crop-modal">
@@ -184,6 +199,41 @@
       <div class="modal-actions">
         <button id="mobileSkillPickerRemoveBtn" class="danger-btn hidden">Remover Skill</button>
         <button id="mobileSkillPickerCloseBtn" class="secondary-btn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="characterModalBackdrop" class="modal-backdrop hidden">
+    <div class="modal character-modal">
+      <h3>Gerenciar Personagens</h3>
+
+      <div class="character-manager-grid">
+        <div>
+          <div class="eyebrow">Personagens cadastrados</div>
+          <div id="characterManagerList" class="character-manager-list"></div>
+        </div>
+
+        <div class="character-editor">
+          <label class="modal-field">
+            <span>Nome do personagem</span>
+            <input id="characterNameEditor" type="text" placeholder="Ex.: Godwhy" />
+          </label>
+
+          <div class="character-editor-actions">
+            <button id="addCharacterBtn" class="primary-btn">+ Adicionar Personagem</button>
+            <button id="renameCharacterBtn" class="secondary-btn">Renomear Selecionado</button>
+            <button id="deleteCharacterBtn" class="danger-btn">Excluir Selecionado</button>
+          </div>
+
+          <p class="field-help">
+            Os personagens cadastrados ficam disponíveis nos quatro espaços de cada estratégia.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="closeCharacterManagerBtn" class="primary-btn">Concluir</button>
       </div>
     </div>
   </div>
@@ -222,6 +272,7 @@
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="script.js"></script>
   <script src="github-skills.js"></script>
   <script type="module" src="firebase-sync.js"></script>

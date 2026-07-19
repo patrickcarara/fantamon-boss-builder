@@ -1098,3 +1098,149 @@ body.read-only .skill-card {
     text-align: center;
   }
 }
+
+
+/* v2.9 — contador de estratégias */
+.strategy-select-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.strategy-select-row #strategySelect {
+  margin-top: 0;
+}
+
+.strategy-count-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+/* v2.9 — OCR do nome do Boss */
+.boss-ocr-status {
+  display: block;
+  min-height: 16px;
+  margin-top: 5px;
+}
+
+.boss-ocr-status.error {
+  color: #ff9bab;
+}
+
+.duplicate-boss-message {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+/* v2.9 — cadastro e seleção de personagens */
+.slot-title-row {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.character-gear-btn {
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.character-gear-btn:hover {
+  border-color: var(--accent);
+}
+
+.character-modal {
+  width: min(650px, 100%);
+}
+
+.character-manager-grid {
+  display: grid;
+  grid-template-columns: 190px 1fr;
+  gap: 18px;
+}
+
+.character-manager-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.character-manager-item {
+  width: 100%;
+  padding: 10px 12px;
+  text-align: left;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.character-manager-item.active {
+  border-color: var(--accent);
+  background: rgba(124,92,255,.12);
+}
+
+.character-editor-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.character-editor-actions .primary-btn {
+  width: 100%;
+}
+
+/* Visitante não pode alterar personagens */
+body.read-only .character-gear-btn {
+  display: none !important;
+}
+
+body.read-only [data-slot-name] {
+  pointer-events: none;
+  opacity: .78;
+}
+
+@media (max-width: 650px) {
+  .character-manager-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .slot-info {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .slot-title-row {
+    grid-column: 1 / -1;
+  }
+
+  .strategy-select-row {
+    width: 100%;
+  }
+
+  .strategy-select-row #strategySelect {
+    flex: 1;
+    min-width: 0;
+  }
+}

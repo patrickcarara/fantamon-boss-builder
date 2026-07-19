@@ -22,6 +22,9 @@ let modalConfirmAction = null;
 let pendingBossImage = "";
 let selectedManagedClassId = null;
 let mobileSkillPickerTarget = null;
+let selectedManagedCharacter = null;
+let pendingBossOcrName = "";
+let bossOcrBusy = false;
 
 const el = id => document.getElementById(id);
 
@@ -32,7 +35,7 @@ function uid(prefix) {
 function createEmptySlots() {
   return [1,2,3,4].map((n) => ({
     id: uid("slot"),
-    name: `Slot ${n}`,
+    name: "",
     classId: getClasses?.()[0]?.id || "mage",
     className: getClasses?.()[0]?.name || "Mage",
     skills: []
@@ -58,6 +61,18 @@ function loadState() {
       if (!Array.isArray(saved.classes) || saved.classes.length === 0) {
         saved.classes = DEFAULT_CLASSES.map(c => ({ ...c }));
       }
+      if (!Array.isArray(saved.characters)) {
+        const existingNames = new Set();
+        saved.bosses.forEach(boss => {
+          (boss.strategies || []).forEach(strategy => {
+            (strategy.slots || []).forEach(slot => {
+              const name = String(slot.name || "").trim();
+              if (name && !/^Slot\s+\d+$/i.test(name)) existingNames.add(name);
+            });
+          });
+        });
+        saved.characters = [...existingNames];
+      }
       return saved;
     }
   } catch {}
@@ -65,7 +80,8 @@ function loadState() {
     bosses: [],
     selectedBossId: null,
     customSkills: {},
-    classes: DEFAULT_CLASSES.map(c => ({ ...c }))
+    classes: DEFAULT_CLASSES.map(c => ({ ...c })),
+    characters: []
   };
 }
 
@@ -117,6 +133,8 @@ function showModal(title, fields, onConfirm) {
   el("bossImagePreviewWrap").classList.add("hidden");
   el("bossImageFileInput").value = "";
   pendingBossImage = hasBossImageField ? (fields.find(f => f.id === "bossImageInput")?.value || "") : "";
+  pendingBossOcrName = "";
+  setBossOcrStatus("");
 
   if (hasBossImageField && pendingBossImage) {
     el("bossImagePreview").src = pendingBossImage;
@@ -134,6 +152,8 @@ function hideModal() {
   el("bossImagePreviewWrap").classList.add("hidden");
   modalConfirmAction = null;
   pendingBossImage = "";
+  pendingBossOcrName = "";
+  setBossOcrStatus("");
 }
 
 function escapeHtml(value) {
@@ -142,6 +162,233 @@ function escapeHtml(value) {
   }[c]));
 }
 
+
+
+function normalizeComparableName(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function findBossByName(name, excludeBossId = null) {
+  const normalized = normalizeComparableName(name);
+  if (!normalized) return null;
+  return state.bosses.find(b =>
+    b.id !== excludeBossId && normalizeComparableName(b.name) === normalized
+  ) || null;
+}
+
+function showDuplicateBoss(existingBoss) {
+  el("duplicateBossMessage").textContent =
+    `"${existingBoss.name}" já está cadastrado na sua lista.`;
+  el("duplicateBossBackdrop").classList.remove("hidden");
+}
+
+function setBossOcrStatus(message, isError = false) {
+  const status = el("bossOcrStatus");
+  if (!status) return;
+  status.textContent = message || "";
+  status.classList.toggle("error", !!isError);
+}
+
+function cleanOcrBossName(rawText) {
+  const lines = String(rawText || "")
+    .split(/\r?\n/)
+    .map(line => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+
+  const candidates = [];
+
+  for (const line of lines) {
+    let match = line.match(/Lv\.?\s*\d+\s+(.+)/i);
+    if (match) candidates.push(match[1]);
+
+    // Também aceita linhas que terminam antes de textos comuns da interface.
+    if (/^[A-Za-z][A-Za-z' -]{3,40}$/.test(line) &&
+        !/^(elite monster|monster|boss|challenge|battle|combat)$/i.test(line)) {
+      candidates.push(line);
+    }
+  }
+
+  for (let candidate of candidates) {
+    candidate = candidate
+      .replace(/\b(Elite Monster|Monster|Challenge|Battle|Combat)\b.*$/i, "")
+      .replace(/[|_[\]{}<>]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+    if (candidate.length >= 4 && candidate.length <= 50) {
+      return candidate.replace(/\b\w/g, c => c.toUpperCase());
+    }
+  }
+
+  return "";
+}
+
+async function recognizeBossNameFromImage(dataUrl) {
+  if (!window.Tesseract?.recognize) {
+    throw new Error("Biblioteca de OCR não carregada.");
+  }
+
+  const result = await window.Tesseract.recognize(dataUrl, "eng", {
+    logger: info => {
+      if (info.status === "recognizing text" && typeof info.progress === "number") {
+        setBossOcrStatus(`Lendo nome do Boss... ${Math.round(info.progress * 100)}%`);
+      }
+    }
+  });
+
+  return cleanOcrBossName(result?.data?.text || "");
+}
+
+async function processBossOcr(dataUrl) {
+  if (bossOcrBusy) return;
+  bossOcrBusy = true;
+  pendingBossOcrName = "";
+  setBossOcrStatus("Lendo nome do Boss...");
+
+  try {
+    const detectedName = await recognizeBossNameFromImage(dataUrl);
+    if (!detectedName) {
+      setBossOcrStatus("Não consegui identificar o nome automaticamente. Você ainda pode digitá-lo.");
+      return;
+    }
+
+    pendingBossOcrName = detectedName;
+    const input = el("bossNameInput");
+    if (input) input.value = detectedName;
+
+    const editingBoss = getSelectedBoss();
+    const isEditing = el("modalTitle")?.textContent === "Editar Boss";
+    const duplicate = findBossByName(detectedName, isEditing ? editingBoss?.id : null);
+
+    if (duplicate) {
+      setBossOcrStatus(`Boss identificado: ${detectedName}. Ele já está cadastrado.`);
+      hideModal();
+      showDuplicateBoss(duplicate);
+      return;
+    }
+
+    setBossOcrStatus(`Boss identificado: ${detectedName}`);
+  } catch (error) {
+    console.error("Erro no OCR do Boss:", error);
+    setBossOcrStatus("Não foi possível ler o nome automaticamente. Você pode digitá-lo.", true);
+  } finally {
+    bossOcrBusy = false;
+  }
+}
+
+function getCharacters() {
+  if (!Array.isArray(state.characters)) state.characters = [];
+  return state.characters;
+}
+
+function openCharacterManager() {
+  const characters = getCharacters();
+  selectedManagedCharacter =
+    selectedManagedCharacter && characters.includes(selectedManagedCharacter)
+      ? selectedManagedCharacter
+      : characters[0] || null;
+
+  renderCharacterManager();
+  el("characterModalBackdrop").classList.remove("hidden");
+}
+
+function closeCharacterManager() {
+  el("characterModalBackdrop").classList.add("hidden");
+  renderSlots();
+}
+
+function renderCharacterManager() {
+  const characters = getCharacters();
+
+  el("characterManagerList").innerHTML = characters.length
+    ? characters.map(name => `
+        <button class="character-manager-item ${name === selectedManagedCharacter ? "active" : ""}"
+                data-manage-character="${escapeHtml(name)}">
+          ${escapeHtml(name)}
+        </button>
+      `).join("")
+    : `<div class="field-help">Nenhum personagem cadastrado.</div>`;
+
+  el("characterNameEditor").value = selectedManagedCharacter || "";
+
+  document.querySelectorAll("[data-manage-character]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedManagedCharacter = btn.dataset.manageCharacter;
+      renderCharacterManager();
+    });
+  });
+}
+
+function addCharacterFromManager() {
+  const name = el("characterNameEditor").value.trim();
+  if (!name) return alert("Digite o nome do personagem.");
+
+  if (getCharacters().some(item =>
+    normalizeComparableName(item) === normalizeComparableName(name)
+  )) {
+    return alert("Esse personagem já está cadastrado.");
+  }
+
+  state.characters.push(name);
+  selectedManagedCharacter = name;
+  saveState();
+  renderCharacterManager();
+}
+
+function renameSelectedCharacter() {
+  if (!selectedManagedCharacter) return alert("Selecione um personagem.");
+
+  const name = el("characterNameEditor").value.trim();
+  if (!name) return alert("Digite o novo nome do personagem.");
+
+  if (getCharacters().some(item =>
+    item !== selectedManagedCharacter &&
+    normalizeComparableName(item) === normalizeComparableName(name)
+  )) {
+    return alert("Já existe um personagem com esse nome.");
+  }
+
+  const oldName = selectedManagedCharacter;
+  const index = state.characters.indexOf(oldName);
+  if (index >= 0) state.characters[index] = name;
+
+  state.bosses.forEach(boss => {
+    (boss.strategies || []).forEach(strategy => {
+      (strategy.slots || []).forEach(slot => {
+        if (slot.name === oldName) slot.name = name;
+      });
+    });
+  });
+
+  selectedManagedCharacter = name;
+  saveState();
+  renderCharacterManager();
+}
+
+function deleteSelectedCharacter() {
+  if (!selectedManagedCharacter) return alert("Selecione um personagem.");
+  if (!confirm(`Excluir o personagem "${selectedManagedCharacter}" da lista?`)) return;
+
+  const removed = selectedManagedCharacter;
+  state.characters = getCharacters().filter(name => name !== removed);
+
+  state.bosses.forEach(boss => {
+    (boss.strategies || []).forEach(strategy => {
+      (strategy.slots || []).forEach(slot => {
+        if (slot.name === removed) slot.name = "";
+      });
+    });
+  });
+
+  selectedManagedCharacter = state.characters[0] || null;
+  saveState();
+  renderCharacterManager();
+}
 
 function getClasses() {
   if (!Array.isArray(state.classes) || state.classes.length === 0) {
@@ -485,6 +732,8 @@ function renderStrategies(boss) {
   };
 
   const strategy = getSelectedStrategy();
+  el("strategyCountBadge").textContent = boss.strategies.length;
+  el("strategyCountBadge").title = `${boss.strategies.length} estratégia${boss.strategies.length === 1 ? "" : "s"} salva${boss.strategies.length === 1 ? "" : "s"}`;
   el("strategyNotes").value = strategy?.notes || "";
   el("setPrincipalBtn").textContent = strategy?.principal ? "★ Principal" : "☆ Principal";
 
@@ -582,8 +831,20 @@ function renderSlots() {
   container.innerHTML = strategy.slots.map((slot, index) => `
     <div class="character-slot">
       <div class="slot-info">
-        <div class="eyebrow">Personagem ${index + 1}</div>
-        <input data-slot-name="${slot.id}" value="${escapeHtml(slot.name)}" />
+        <div class="slot-title-row">
+          <div class="eyebrow">Personagem ${index + 1}${index === 0 ? " (*)" : ""}</div>
+          ${index === 0 ? `<button class="character-gear-btn" data-open-character-manager title="Gerenciar personagens" aria-label="Gerenciar personagens">⚙️</button>` : ""}
+        </div>
+        <select data-slot-name="${slot.id}">
+          <option value="">Selecionar personagem</option>
+          ${getCharacters().map(name => `
+            <option value="${escapeHtml(name)}" ${slot.name === name ? "selected" : ""}>${escapeHtml(name)}</option>
+          `).join("")}
+          ${slot.name && !getCharacters().includes(slot.name)
+            ? `<option value="${escapeHtml(slot.name)}" selected>${escapeHtml(slot.name)}</option>`
+            : ""
+          }
+        </select>
         <select data-slot-class="${slot.id}">
           ${getClasses().map(c => `
             <option value="${c.id}" ${
@@ -611,12 +872,16 @@ function renderSlots() {
     </div>
   `).join("");
 
-  document.querySelectorAll("[data-slot-name]").forEach(input => {
-    input.addEventListener("input", () => {
-      const slot = strategy.slots.find(s => s.id === input.dataset.slotName);
-      slot.name = input.value;
+  document.querySelectorAll("[data-slot-name]").forEach(select => {
+    select.addEventListener("change", () => {
+      const slot = strategy.slots.find(s => s.id === select.dataset.slotName);
+      slot.name = select.value;
       touchStrategy(strategy);
     });
+  });
+
+  document.querySelectorAll("[data-open-character-manager]").forEach(button => {
+    button.addEventListener("click", openCharacterManager);
   });
 
   document.querySelectorAll("[data-slot-class]").forEach(select => {
@@ -763,6 +1028,14 @@ function addBoss() {
   ], () => {
     const name = el("bossNameInput").value.trim();
     if (!name) return alert("Digite o nome do boss.");
+
+    const duplicate = findBossByName(name);
+    if (duplicate) {
+      hideModal();
+      showDuplicateBoss(duplicate);
+      return;
+    }
+
     const strategy = createStrategy("Principal", true);
     const boss = {
       id: uid("boss"),
@@ -789,6 +1062,14 @@ function editBoss() {
   ], () => {
     const name = el("bossNameInput").value.trim();
     if (!name) return alert("Digite o nome do boss.");
+
+    const duplicate = findBossByName(name, boss.id);
+    if (duplicate) {
+      hideModal();
+      showDuplicateBoss(duplicate);
+      return;
+    }
+
     boss.name = name;
     boss.image = pendingBossImage || el("bossImageInput").value.trim();
     saveState();
@@ -947,7 +1228,11 @@ el("bossImageFileInput").addEventListener("change", () => {
   }
 
   const reader = new FileReader();
-  reader.onload = () => openBossCrop(String(reader.result || ""));
+  reader.onload = () => {
+    const dataUrl = String(reader.result || "");
+    processBossOcr(dataUrl);
+    openBossCrop(dataUrl);
+  };
   reader.readAsDataURL(file);
 });
 
@@ -1210,6 +1495,25 @@ el("strategyNotes").addEventListener("input", () => {
 });
 
 
+el("duplicateBossExitBtn").addEventListener("click", () => {
+  el("duplicateBossBackdrop").classList.add("hidden");
+});
+
+el("duplicateBossBackdrop").addEventListener("click", event => {
+  if (event.target === el("duplicateBossBackdrop")) {
+    el("duplicateBossBackdrop").classList.add("hidden");
+  }
+});
+
+el("closeCharacterManagerBtn").addEventListener("click", closeCharacterManager);
+el("addCharacterBtn").addEventListener("click", addCharacterFromManager);
+el("renameCharacterBtn").addEventListener("click", renameSelectedCharacter);
+el("deleteCharacterBtn").addEventListener("click", deleteSelectedCharacter);
+
+el("characterModalBackdrop").addEventListener("click", event => {
+  if (event.target === el("characterModalBackdrop")) closeCharacterManager();
+});
+
 el("manageClassesBtn").addEventListener("click", openClassManager);
 el("closeClassManagerBtn").addEventListener("click", closeClassManager);
 el("addClassBtn").addEventListener("click", addClassFromManager);
@@ -1262,7 +1566,7 @@ el("mobileSkillPickerBackdrop").addEventListener("click", event => {
 window.FantamonApp = {
   getState: () => state,
 
-  replaceSharedData: ({ bosses, classes, customSkills }) => {
+  replaceSharedData: ({ bosses, classes, customSkills, characters }) => {
     if (Array.isArray(bosses)) {
       state.bosses = bosses;
     }
@@ -1273,6 +1577,10 @@ window.FantamonApp = {
 
     if (customSkills && typeof customSkills === "object") {
       state.customSkills = customSkills;
+    }
+
+    if (Array.isArray(characters)) {
+      state.characters = characters;
     }
 
     if (!state.bosses.some(b => b.id === selectedBossId)) {
