@@ -68,7 +68,7 @@ const I18N = {
     savedStrategy: "estratégia salva",
     savedStrategies: "estratégias salvas",
     noStrategy: "Sem estratégia",
-    noSkillsClass: "${t("noSkillsClass")}",
+    noSkillsClass: "Nenhuma skill cadastrada para esta classe.",
     noSkillsLibrary: "Nenhuma skill cadastrada para esta classe ainda.",
     importSkillsHelp: "Use + Adicionar várias Skills para importar imagens.",
     classPrefix: "Classe",
@@ -264,7 +264,9 @@ function applyLanguage() {
 
   // Re-renderiza partes dinâmicas no idioma selecionado.
   render();
-  renderCharacterManager?.();
+  if (!el("characterModalBackdrop")?.classList.contains("hidden")) {
+    renderCharacterManager();
+  }
 }
 
 function setLanguage(lang) {
