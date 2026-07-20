@@ -72,6 +72,7 @@ const I18N = {
     noSkillsLibrary: "Nenhuma skill cadastrada para esta classe ainda.",
     importSkillsHelp: "Use + Adicionar várias Skills para importar imagens.",
     classPrefix: "Classe",
+    mobileSkillMessage: "Para colocar uma skill, basta clicar no campo da Skill desejada.",
     ocrReading: "Lendo nome do Boss...",
     ocrNotFound: "Não consegui identificar o nome automaticamente. Você ainda pode digitá-lo.",
     ocrDetected: "Boss identificado",
@@ -154,6 +155,7 @@ const I18N = {
     noSkillsLibrary: "No skills registered for this class yet.",
     importSkillsHelp: "Use + Add multiple Skills to import images.",
     classPrefix: "Class",
+    mobileSkillMessage: "To add a skill, simply tap the desired Skill slot.",
     ocrReading: "Reading Boss name...",
     ocrNotFound: "I could not identify the name automatically. You can still type it.",
     ocrDetected: "Boss identified",
@@ -212,6 +214,7 @@ function applyLanguage() {
   setText("#deleteClassBtn", "deleteSelectedClass");
   setText("#closeClassManagerBtn", "finish");
   setText("#duplicateBossExitBtn", "exit");
+  setText("#mobileSkillLibraryMessage", "mobileSkillMessage");
 
   const bossSearch = el("bossSearch");
   if (bossSearch) bossSearch.placeholder = t("searchBoss");

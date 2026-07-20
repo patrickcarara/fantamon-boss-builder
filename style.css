@@ -1304,3 +1304,32 @@ body.read-only [data-slot-name] {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+
+
+/* v3.2 — biblioteca de skills simplificada no celular */
+.mobile-skill-library-message {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .skill-library {
+    display: none !important;
+  }
+
+  .mobile-skill-library-message {
+    display: block;
+    margin-top: 16px;
+    padding: 16px;
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    background: rgba(124,92,255,.06);
+    color: var(--muted);
+    text-align: center;
+    line-height: 1.5;
+    font-size: 13px;
+  }
+
+  .library-tip {
+    display: none;
+  }
+}
