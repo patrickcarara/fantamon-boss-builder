@@ -1346,3 +1346,23 @@ body.read-only [data-slot-name] {
     margin-top: 12px;
   }
 }
+
+
+/* v3.4 — ocultação definitiva do painel da Biblioteca no celular */
+@media screen and (max-width: 980px) {
+  #skillLibraryPanel {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+  }
+
+  #mobileSkillLibraryMessage {
+    display: block !important;
+  }
+}
