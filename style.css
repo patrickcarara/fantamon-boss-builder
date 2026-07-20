@@ -1333,3 +1333,16 @@ body.read-only [data-slot-name] {
     display: none;
   }
 }
+
+
+/* v3.3 — no celular, esconder completamente o painel da Biblioteca de Skills */
+@media (max-width: 760px) {
+  section.library.card {
+    display: none !important;
+  }
+
+  .mobile-skill-library-message {
+    display: block !important;
+    margin-top: 12px;
+  }
+}
